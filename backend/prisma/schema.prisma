@@ -1,0 +1,17 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Merchant {
+  id            String   @id
+  name          String
+  location      String
+  registeredAt  DateTime @default(now())
+  score         Int      @default(0)
+  scoreBreakdown Json
+  stats         Json
+}
