@@ -1,7 +1,8 @@
+export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
-// Importa tu cliente de base de datos
-import { prisma } from '@/lib/prisma'; 
-// 1. Datos estáticos para la Demo (Hardcoded)
+import { prisma } from '@/lib/prisma';
+
+// 1. Datos estáticos para la Demo
 const mockMerchantDetails: Record<string, any> = {
   '0x265...': {
     id: '0x265...',
@@ -33,22 +34,21 @@ export async function GET(
     const merchantId = params.id;
 
     // --- PASO 1: INTENTAR OBTENER DATOS REALES DE LA BASE DE DATOS ---
-    // Solo ejecuta si Prisma está disponible y configurado
-    if (typeof prisma !== 'undefined') {
-      try {
-        const realMerchant = await prisma.merchant.findUnique({
+    if (prisma) {
+      try {        
+        const realMerchant = await (prisma as any).merchant.findUnique({
           where: { id: merchantId },
           include: {
             stats: true,
-            scoreHistory: true
-          }
+            scoreHistory: true,
+          },
         });
 
         if (realMerchant) {
           return NextResponse.json({ merchant: realMerchant });
         }
-      } catch (dbError) {
-        console.warn('Error conectando a DB, cayendo en mocks:', dbError);
+      } catch (dbError) {        
+        console.warn('DB no lista o registro inexistente, usando mocks.');
       }
     }
 
@@ -59,15 +59,14 @@ export async function GET(
       return NextResponse.json({ merchant: demoMerchant });
     }
 
-    // --- PASO 3: GENERACIÓN DINÁMICA (Para cualquier otro ID nuevo) ---
-    // Esto permite que si ingresas un ID que no existe, la app no se rompa y muestre datos coherentes
+    // --- PASO 3: GENERACIÓN DINÁMICA ---
     return NextResponse.json({
       merchant: {
         id: merchantId,
         name: `Comercio Nuevo (${merchantId.slice(0, 6)})`,
         location: 'Lima, Perú',
         registeredAt: new Date().toISOString().split('T')[0],
-        score: Math.floor(Math.random() * (90 - 65) + 65), // Score aleatorio para simulación
+        score: Math.floor(Math.random() * (90 - 65) + 65),
         scoreBreakdown: {
           stability: 75,
           volume: 80,
