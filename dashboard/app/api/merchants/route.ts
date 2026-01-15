@@ -4,38 +4,33 @@ import { prisma } from '@/lib/prisma';
 export const dynamic = 'force-dynamic';
 
 const mockMerchants = [
-  { id: '0x265...', name: 'Bodega Don Pepe', location: 'Miraflores, Lima', score: 92, salesLastMonth: 12500, trend: 'up' },
-  { id: '0x2af...', name: 'Minimarket El Sol', location: 'San Isidro, Lima', score: 87, salesLastMonth: 18200, trend: 'up' },
-  { id: '0xec9...', name: 'Bodega La Esquina', location: 'Barranco, Lima', score: 78, salesLastMonth: 9800, trend: 'stable' },
-  { id: '0x7f8...', name: 'Tienda Mi Barrio', location: 'San Miguel, Lima', score: 65, salesLastMonth: 7200, trend: 'down' },
+  { id: 'mock-1', name: 'Bodega Don Pepe', location: 'Miraflores', lat: -12.1223, lng: -77.0285, score: 92 },
+  { id: 'mock-2', name: 'Minimarket El Sol', location: 'San Isidro', lat: -12.0950, lng: -77.0320, score: 87 },
+  { id: 'mock-3', name: 'Bodega La Esquina', location: 'Barranco', lat: -12.1478, lng: -77.0220, score: 78 },
+  { id: 'mock-4', name: 'Tienda Mi Barrio', location: 'San Miguel', lat: -12.0750, lng: -77.0850, score: 65 },
 ];
 
-// OBTENER COMERCIOS (GET)
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const minScore = parseInt(searchParams.get('minScore') || '0');
 
-    let merchants = [];
-
-    // Intentamos traer de la DB real si prisma está listo
+    let dbMerchants = [];
     if (prisma) {
-      const dbMerchants = await (prisma as any).merchant.findMany({
+      dbMerchants = await (prisma as any).merchant.findMany({
         where: { score: { gte: minScore } }
       });
-      merchants = dbMerchants.length > 0 ? dbMerchants : mockMerchants;
-    } else {
-      merchants = mockMerchants.filter(m => m.score >= minScore);
     }
+        
+    const allMerchants = [...dbMerchants, ...mockMerchants].filter(m => (m.score || 0) >= minScore);
 
-    return NextResponse.json({ merchants });
+    return NextResponse.json({ merchants: allMerchants });
   } catch (error) {
     console.error("Error en GET merchants:", error);
-    return NextResponse.json({ merchants: mockMerchants }); // Fallback seguro
+    return NextResponse.json({ merchants: mockMerchants });
   }
 }
 
-// REGISTRAR COMERCIO (POST)
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -44,22 +39,29 @@ export async function POST(request: Request) {
     if (!id || !name) {
       return NextResponse.json({ error: 'ID (Wallet) y Nombre son requeridos' }, { status: 400 });
     }
+    
+    const randomLat = -12.0464 + (Math.random() - 0.5) * 0.15;
+    const randomLng = -77.0428 + (Math.random() - 0.5) * 0.15;
 
     if (prisma) {
       const newMerchant = await (prisma as any).merchant.create({
         data: {
-          id, // Dirección de la billetera
+          id,
           name,
           location: location || 'Lima, Perú',
-          score: 75, // Score inicial por defecto
+          lat: randomLat,
+          lng: randomLng,
+          score: 75,
           registeredAt: new Date(),
         }
       });
       return NextResponse.json(newMerchant, { status: 201 });
     }
 
-    // Si no hay DB (Entorno de demo), simulamos éxito
-    return NextResponse.json({ message: "Modo Demo: Registro recibido", data: body }, { status: 201 });
+    return NextResponse.json({ 
+      message: "Modo Demo: Registro recibido", 
+      data: { ...body, lat: randomLat, lng: randomLng } 
+    }, { status: 201 });
 
   } catch (error) {
     console.error("Error al registrar comercio:", error);

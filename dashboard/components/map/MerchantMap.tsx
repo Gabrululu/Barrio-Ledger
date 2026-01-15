@@ -18,7 +18,7 @@ const icon = L.icon({
 function MapController({ center }: { center: [number, number] }) {
   const map = useMap();
   useEffect(() => {
-    if (center) {
+    if (center && center[0] && center[1]) {
       map.setView(center, 15); 
     }
   }, [center, map]);
@@ -32,18 +32,16 @@ interface MerchantMapProps {
 }
 
 export default function MerchantMap({ merchants, onSelectMerchant, selectedMerchant }: MerchantMapProps) {
-  // Coordenadas por defecto
   const defaultCenter: [number, number] = [-12.11, -77.03];
 
-  // Preparamos los puntos para el Mapa de Calor
-  // Formato: [lat, lng, intensidad] donde intensidad depende del score
+  // Preparamos los puntos para el Mapa de Calor usando lat/lng planos
   const heatPoints: [number, number, number][] = merchants
-    .filter((m) => m.coordinates)
-    .map((m) => [
-      m.coordinates.lat,
-      m.coordinates.lng,
-      m.score / 100 // Escala de 0 a 1 para la intensidad del calor
-    ]);
+  .filter((m) => m.lat && m.lng)
+  .map((m) => [
+    m.lat,
+    m.lng,
+    (m.score || 0) / 100 
+  ]);
 
   return (
     <MapContainer 
@@ -54,18 +52,18 @@ export default function MerchantMap({ merchants, onSelectMerchant, selectedMerch
     >
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        attribution='&copy; OpenStreetMap contributors'
       />
       
       <LayersControl position="topright">
-        {/* Capa 1: Marcadores Individuales */}
         <LayersControl.Overlay checked name="📍 Marcadores de Comercios">
-          <div key="markers-group">
+          {/* Usamos un fragmento de React en lugar de un div para no romper Leaflet */}
+          <>
             {merchants.map((merchant) => (
-              merchant.coordinates && (
+              merchant.lat && merchant.lng && (
                 <Marker 
                   key={merchant.id} 
-                  position={[merchant.coordinates.lat, merchant.coordinates.lng]} 
+                  position={[merchant.lat, merchant.lng]} 
                   icon={icon}
                   eventHandlers={{
                     click: () => onSelectMerchant(merchant),
@@ -90,18 +88,16 @@ export default function MerchantMap({ merchants, onSelectMerchant, selectedMerch
                 </Marker>
               )
             ))}
-          </div>
+          </>
         </LayersControl.Overlay>
 
-        {/* Capa 2: Mapa de Calor (Heatmap) */}
         <LayersControl.Overlay name="🔥 Mapa de Calor de Riesgo">
           <HeatmapLayer points={heatPoints} />
         </LayersControl.Overlay>
       </LayersControl>
 
-      {/* Controlador para centrar el mapa al seleccionar un comercio en la lista */}
-      {selectedMerchant?.coordinates && (
-        <MapController center={[selectedMerchant.coordinates.lat, selectedMerchant.coordinates.lng]} />
+      {selectedMerchant?.lat && selectedMerchant?.lng && (
+        <MapController center={[selectedMerchant.lat, selectedMerchant.lng]} />
       )}
     </MapContainer>
   )

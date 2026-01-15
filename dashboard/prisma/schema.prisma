@@ -10,6 +10,8 @@ model Merchant {
   id            String   @id
   name          String
   location      String
+  lat          Float?   
+  lng          Float?   
   registeredAt  DateTime @default(now())
   score         Int      @default(0)
   scoreBreakdown Json

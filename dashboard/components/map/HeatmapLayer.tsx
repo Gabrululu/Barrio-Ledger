@@ -3,33 +3,39 @@
 import { useEffect } from 'react'
 import { useMap } from 'react-leaflet'
 import L from 'leaflet'
-import 'leaflet.heat'
 
-export default function HeatmapLayer({ points }: { points: [number, number, number][] }) {
+// Importación segura para evitar errores de SSR
+if (typeof window !== 'undefined') {
+  require('leaflet.heat')
+}
+
+interface HeatmapLayerProps {
+  points: [number, number, number][]; // [lat, lng, intensidad]
+}
+
+export default function HeatmapLayer({ points }: HeatmapLayerProps) {
   const map = useMap();
 
   useEffect(() => {
-    if (!map || !points.length) return;
+    if (!map || !points || points.length === 0) return;
 
-    // Configuración de gradiente: 
-    // 0.4 (Bajo Score) -> Rojo
-    // 0.6 (Medio) -> Naranja/Amarillo
-    // 1.0 (Alto Score) -> Verde Esmeralda
-    // @ts-ignore
+    // @ts-ignore - Leaflet.heat no tiene tipos oficiales de TS
     const heatLayer = L.heatLayer(points, {
-      radius: 30,
-      blur: 20,
-      maxZoom: 17,
+      radius: 35, // Aumentado para mejor visibilidad
+      blur: 15,
+      max: 1.0,
       gradient: {
-        0.2: '#ef4444', // Rojo (Riesgo)
-        0.5: '#f59e0b', // Ámbar (Medio)
-        0.8: '#10b981', // Verde (Excelente)
-        1.0: '#059669'  // Esmeralda oscuro
+        0.2: '#ef4444', // Rojo: Zonas con comercios de bajo score o pocos registros
+        0.4: '#f59e0b', // Ámbar: Actividad moderada
+        0.7: '#10b981', // Verde: Zonas con alta reputación (Mantle Trust)
+        1.0: '#059669'  // Esmeralda: Hubs financieros consolidados
       }
     }).addTo(map);
 
     return () => {
-      map.removeLayer(heatLayer);
+      if (map && heatLayer) {
+        map.removeLayer(heatLayer);
+      }
     };
   }, [map, points]);
 

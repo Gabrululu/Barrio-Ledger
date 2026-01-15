@@ -69,6 +69,6 @@ export async function getMerchantInfo(merchantId) {
 // Health check
 export async function healthCheck() {
   return apiRequest('/health', {
-    baseUrl: API_BASE_URL.replace('/api', ''),
+    baseUrl: API_URL.replace('/api', ''),
   });
 }
