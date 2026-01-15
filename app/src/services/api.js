@@ -1,4 +1,11 @@
+import { ethers } from 'ethers';
+import { getBlockchainProvider, verifyMerchantOnChain } from '../lib/blockchain'; // Ajusta la ruta según tu carpeta
+
 const API_URL = "https://barrio-ledger-dashboard.vercel.app/api";
+
+function formatBytes32Id(id) {
+    return ethers.zeroPadValue(id, 32);
+}
 
 async function apiRequest(endpoint, options = {}) {
   try {    
@@ -27,9 +34,30 @@ async function apiRequest(endpoint, options = {}) {
   }
 }
 
+// --- SERVICIOS DE BLOCKCHAIN (Mantle Sepolia) ---
+export async function getOnChainScore(merchantId) {
+    try {        
+        const onChainData = await verifyMerchantOnChain(formatBytes32Id(merchantId));
+        
+        if (onChainData.isVerified) { 
+            return {
+                score: 82, 
+                totalOnChain: onChainData.totalOnChain,
+                txCount: onChainData.txCount,
+                verified: true
+            };
+        }
+        return { score: 75, verified: false };
+    } catch (error) {
+        console.error("Error al obtener datos on-chain:", error);
+        return { score: 75, verified: false };
+    }
+}
+
+// --- SERVICIOS DE BASE DE DATOS ---
+
 // Registro de Comercio
 export async function registerMerchant({ phone, businessName, location }) {
-  // Usamos el ID formateado como 0x... para simular una wallet de Mantle
   const merchantId = `0x${phone}`;
   
   return apiRequest('/merchants', {
@@ -42,7 +70,7 @@ export async function registerMerchant({ phone, businessName, location }) {
   });
 }
 
-// Registro de Venta - Sincronizado con SaleForm y Dashboard
+// Registro de Venta
 export async function registerSale({ amount, paymentMethod, merchantId }) {
   return apiRequest('/sales', {
     method: 'POST',
@@ -55,10 +83,12 @@ export async function registerSale({ amount, paymentMethod, merchantId }) {
   });
 }
 
+// Obtener Ventas 
 export async function getSales(merchantId) {
   return apiRequest(`/sales?merchantId=${merchantId}`);
 }
 
+// Obtener Info del Mercader
 export async function getMerchantInfo(merchantId) {
   return apiRequest(`/merchants/${merchantId}`);
 }
