@@ -31,14 +31,16 @@ async function apiRequest(endpoint, options = {}) {
 
 // Register a new merchant
 export async function registerMerchant({ phone, businessName, location }) {
-  return apiRequest('/merchants', {
+  const response = await fetch('https://barrio-ledger-dashboard.vercel.app/api/merchants', {
     method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       id: `0x${phone}`, 
-      name: businessName,
-      location,
+      name: businessName, 
+      location: location
     }),
   });
+  return response.json();
 }
 
 // Register a sale
