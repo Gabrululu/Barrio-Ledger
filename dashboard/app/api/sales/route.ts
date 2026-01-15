@@ -17,28 +17,47 @@ export async function POST(request: Request) {
     if (!prisma) {
       return NextResponse.json({ error: 'DB no conectada' }, { status: 500, headers: corsHeaders });
     }
-    
+
+    // 1. Validar que el merchant existe
     const merchantExists = await (prisma as any).merchant.findUnique({
       where: { id: merchantId }
     });
 
     if (!merchantExists) {
-      return NextResponse.json({ error: 'El comercio no está registrado en la base de datos' }, { status: 404, headers: corsHeaders });
+      return NextResponse.json({ 
+        error: 'El comercio no existe. Regístralo primero en la App.' 
+      }, { status: 404, headers: corsHeaders });
     }
 
+    // 2. Crear la venta vinculada al merchant
     const newSale = await (prisma as any).sale.create({
       data: {
         amount: parseFloat(amount),
-        paymentMethod: paymentMethod || 'Cash',
-        merchantId,
+        paymentMethod: paymentMethod || 'Digital',
+        merchantId: merchantId,
         timestamp: new Date(),
+      }
+    });
+
+    // 3. (Opcional) Actualizar las estadísticas del Merchant    
+    const currentStats = (merchantExists.stats as any) || {};
+    await (prisma as any).merchant.update({
+      where: { id: merchantId },
+      data: {
+        stats: {
+          ...currentStats,
+          totalSales: (currentStats.totalSales || 0) + 1,
+          lastSaleAmount: parseFloat(amount)
+        }
       }
     });
 
     return NextResponse.json(newSale, { status: 201, headers: corsHeaders });
   } catch (error: any) {
-    console.error("Error Prisma Sale:", error.message);
-    return NextResponse.json({ error: 'Error al registrar venta: ' + error.message }, { status: 500, headers: corsHeaders });
+    console.error("Error en registro de venta:", error.message);
+    return NextResponse.json({ 
+      error: 'Error al procesar venta: ' + error.message 
+    }, { status: 500, headers: corsHeaders });
   }
 }
 
