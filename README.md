@@ -1,4 +1,4 @@
-# 🏪 BArrio Ledger
+# 🏪 Barrio Ledger
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Mantle Network](https://img.shields.io/badge/Built%20on-Mantle-green)](https://mantle.xyz)
