@@ -1,7 +1,20 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { MapPin, Filter, Search } from 'lucide-react';
+import { MapPin, Filter } from 'lucide-react';
+import dynamic from 'next/dynamic';
+
+const MerchantMap = dynamic(() => import('@/components/map/MerchantMap'), { 
+  ssr: false,
+  loading: () => (
+    <div className="h-[600px] w-full bg-gray-100 animate-pulse rounded-xl flex items-center justify-center">
+      <div className="text-gray-400 flex flex-col items-center">
+        <MapPin className="w-12 h-12 mb-2 animate-bounce" />
+        <span>Cargando mapa interactivo...</span>
+      </div>
+    </div>
+  )
+});
 
 interface Merchant {
   id: string;
@@ -18,7 +31,6 @@ export default function MapPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Fetch merchants with coordinates
     fetch('/api/merchants?includeCoordinates=true')
       .then(res => res.json())
       .then(data => {
@@ -26,7 +38,7 @@ export default function MapPage() {
         setLoading(false);
       })
       .catch(() => {
-        // Mock data with Lima coordinates
+        // Fallback con coordenadas reales de Lima para la demo
         setMerchants([
           { id: '1', name: 'Bodega Don Pepe', location: 'Miraflores', score: 92, coordinates: { lat: -12.1191, lng: -77.0349 } },
           { id: '2', name: 'Minimarket El Sol', location: 'San Isidro', score: 87, coordinates: { lat: -12.0931, lng: -77.0465 } },
@@ -45,13 +57,6 @@ export default function MapPage() {
     if (score >= 60) return '#3b82f6'; // blue
     if (score >= 40) return '#f59e0b'; // amber
     return '#ef4444'; // red
-  };
-
-  const getScoreLabel = (score: number) => {
-    if (score >= 80) return 'Excelente';
-    if (score >= 60) return 'Bueno';
-    if (score >= 40) return 'Regular';
-    return 'Bajo';
   };
 
   if (loading) {
@@ -79,61 +84,25 @@ export default function MapPage() {
           <select
             value={filterScore}
             onChange={(e) => setFilterScore(Number(e.target.value))}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
           >
             <option value={0}>Todos los scores</option>
-            <option value={80}>Score ≥ 80</option>
-            <option value={60}>Score ≥ 60</option>
-            <option value={40}>Score ≥ 40</option>
+            <option value={80}>Score ≥ 80 (Excelente)</option>
+            <option value={60}>Score ≥ 60 (Bueno)</option>
+            <option value={40}>Score ≥ 40 (Regular)</option>
           </select>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Map Placeholder */}
+        {/* Real Interactive Map */}
         <div className="lg:col-span-2">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <div className="relative h-[600px] bg-gray-100">
-              {/* Map placeholder - En producción usarías Leaflet o Mapbox */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-center">
-                  <MapPin className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-700 mb-2">
-                    Mapa Interactivo
-                  </h3>
-                  <p className="text-sm text-gray-500 mb-4">
-                    Integra Leaflet o Mapbox para visualización
-                  </p>
-                  <div className="inline-block p-4 bg-blue-50 rounded-lg">
-                    <code className="text-xs text-blue-700">
-                      npm install react-leaflet leaflet
-                    </code>
-                  </div>
-                </div>
-              </div>
-
-              {/* Simulated markers */}
-              <div className="absolute inset-0 p-8">
-                {filteredMerchants.slice(0, 5).map((merchant, index) => (
-                  <button
-                    key={merchant.id}
-                    onClick={() => setSelectedMerchant(merchant)}
-                    className="absolute transform -translate-x-1/2 -translate-y-1/2 transition-transform hover:scale-110"
-                    style={{
-                      left: `${20 + index * 15}%`,
-                      top: `${30 + (index % 3) * 15}%`,
-                    }}
-                  >
-                    <div 
-                      className="w-8 h-8 rounded-full border-4 border-white shadow-lg flex items-center justify-center"
-                      style={{ backgroundColor: getScoreColor(merchant.score) }}
-                    >
-                      <span className="text-xs font-bold text-white">{merchant.score}</span>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden h-[600px]">
+            {/* Cargamos el componente de Leaflet y le pasamos los datos filtrados */}
+            <MerchantMap 
+                merchants={filteredMerchants} 
+                onSelectMerchant={setSelectedMerchant} 
+            />
           </div>
         </div>
 
@@ -141,7 +110,7 @@ export default function MapPage() {
         <div className="space-y-4">
           {/* Legend */}
           <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-            <h3 className="font-semibold text-gray-900 mb-3">Leyenda</h3>
+            <h3 className="font-semibold text-gray-900 mb-3 text-sm">Leyenda de Riesgo</h3>
             <div className="space-y-2">
               {[
                 { label: 'Excelente (80-100)', color: '#10b981' },
@@ -150,67 +119,57 @@ export default function MapPage() {
                 { label: 'Bajo (0-39)', color: '#ef4444' },
               ].map((item) => (
                 <div key={item.label} className="flex items-center space-x-2">
-                  <div 
-                    className="w-4 h-4 rounded-full"
-                    style={{ backgroundColor: item.color }}
-                  />
-                  <span className="text-sm text-gray-600">{item.label}</span>
+                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
+                  <span className="text-xs text-gray-600">{item.label}</span>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Selected Merchant */}
+          {/* Selected Merchant Details */}
           {selectedMerchant && (
-            <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-              <h3 className="font-semibold text-gray-900 mb-3">Seleccionado</h3>
-              <div className="space-y-2">
-                <p className="font-medium text-gray-900">{selectedMerchant.name}</p>
+            <div className="bg-green-50 border border-green-100 rounded-xl p-4 shadow-sm animate-in fade-in slide-in-from-right-4">
+              <h3 className="font-semibold text-gray-900 mb-2">Comercio Seleccionado</h3>
+              <div className="space-y-1">
+                <p className="font-bold text-gray-900">{selectedMerchant.name}</p>
                 <p className="text-sm text-gray-600 flex items-center">
-                  <MapPin className="w-4 h-4 mr-1" />
+                  <MapPin className="w-4 h-4 mr-1 text-gray-400" />
                   {selectedMerchant.location}
                 </p>
-                <div className="flex items-center justify-between pt-2">
-                  <span className="text-sm text-gray-600">Score</span>
+                <div className="flex items-center justify-between pt-3">
+                  <span className="text-sm font-medium text-gray-700">Puntaje:</span>
                   <span 
-                    className="px-3 py-1 rounded-full text-sm font-semibold text-white"
+                    className="px-3 py-1 rounded-full text-xs font-bold text-white"
                     style={{ backgroundColor: getScoreColor(selectedMerchant.score) }}
                   >
-                    {selectedMerchant.score}
+                    {selectedMerchant.score} pts
                   </span>
                 </div>
               </div>
             </div>
           )}
 
-          {/* Merchants List */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 max-h-[400px] overflow-y-auto">
-            <div className="p-4 border-b border-gray-100 sticky top-0 bg-white">
-              <h3 className="font-semibold text-gray-900">
-                Comercios ({filteredMerchants.length})
-              </h3>
+          {/* List of filtered merchants */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 max-h-[300px] overflow-y-auto">
+            <div className="p-4 border-b border-gray-100 sticky top-0 bg-white z-10">
+              <h3 className="font-semibold text-gray-900 text-sm">Lista de Comercios</h3>
             </div>
             <div className="divide-y divide-gray-100">
               {filteredMerchants.map((merchant) => (
                 <button
                   key={merchant.id}
                   onClick={() => setSelectedMerchant(merchant)}
-                  className={`w-full p-4 text-left hover:bg-gray-50 transition-colors ${
+                  className={`w-full p-3 text-left hover:bg-gray-50 transition-colors ${
                     selectedMerchant?.id === merchant.id ? 'bg-green-50' : ''
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <p className="font-medium text-gray-900 text-sm mb-1">
-                        {merchant.name}
-                      </p>
-                      <p className="text-xs text-gray-500 flex items-center">
-                        <MapPin className="w-3 h-3 mr-1" />
-                        {merchant.location}
-                      </p>
+                    <div>
+                      <p className="font-medium text-gray-900 text-xs">{merchant.name}</p>
+                      <p className="text-[10px] text-gray-500">{merchant.location}</p>
                     </div>
                     <div 
-                      className="w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold text-sm"
+                      className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-[10px]"
                       style={{ backgroundColor: getScoreColor(merchant.score) }}
                     >
                       {merchant.score}
@@ -223,27 +182,21 @@ export default function MapPage() {
         </div>
       </div>
 
-      {/* Stats by District */}
+      {/* District Stats Summary */}
       <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">
-          Estadísticas por Distrito
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Métricas Geográficas</h2>
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           {[
             { district: 'Miraflores', count: 45, avgScore: 82 },
             { district: 'San Isidro', count: 38, avgScore: 85 },
             { district: 'Barranco', count: 23, avgScore: 74 },
             { district: 'San Miguel', count: 31, avgScore: 71 },
             { district: 'Surco', count: 42, avgScore: 79 },
-          ].map((district) => (
-            <div key={district.district} className="p-4 bg-gray-50 rounded-lg">
-              <p className="text-sm font-medium text-gray-900 mb-1">
-                {district.district}
-              </p>
-              <p className="text-2xl font-bold text-gray-900">{district.count}</p>
-              <p className="text-xs text-gray-500 mt-1">
-                Score promedio: {district.avgScore}
-              </p>
+          ].map((dist) => (
+            <div key={dist.district} className="p-3 bg-gray-50 rounded-lg border border-gray-100 text-center">
+              <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">{dist.district}</p>
+              <p className="text-xl font-black text-gray-900 my-1">{dist.count}</p>
+              <div className="text-[10px] text-gray-400 font-medium">Avg: {dist.avgScore} pts</div>
             </div>
           ))}
         </div>
