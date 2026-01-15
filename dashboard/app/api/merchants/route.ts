@@ -57,8 +57,8 @@ export async function POST(request: Request) {
           lng: randomLng,
           score: 75,
           registeredAt: new Date(),
-          scoreBreakdown: {}, // Requerido por tu schema
-          stats: { totalSales: 0 } // Requerido por tu schema
+          scoreBreakdown: {}, 
+          stats: { totalSales: 0 } 
         }
       });
       return NextResponse.json(newMerchant, { status: 201, headers: corsHeaders });
