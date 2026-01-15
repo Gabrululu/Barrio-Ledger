@@ -10,6 +10,12 @@ const mockMerchants = [
   { id: 'mock-4', name: 'Tienda Mi Barrio', location: 'San Miguel', lat: -12.0750, lng: -77.0850, score: 65 },
 ];
 
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+};
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -24,10 +30,10 @@ export async function GET(request: Request) {
         
     const allMerchants = [...dbMerchants, ...mockMerchants].filter(m => (m.score || 0) >= minScore);
 
-    return NextResponse.json({ merchants: allMerchants });
+    return NextResponse.json({ merchants: allMerchants }, { headers: corsHeaders });
   } catch (error) {
     console.error("Error en GET merchants:", error);
-    return NextResponse.json({ merchants: mockMerchants });
+    return NextResponse.json({ merchants: mockMerchants }, { headers: corsHeaders });
   }
 }
 
@@ -37,7 +43,7 @@ export async function POST(request: Request) {
     const { id, name, location } = body;
 
     if (!id || !name) {
-      return NextResponse.json({ error: 'ID (Wallet) y Nombre son requeridos' }, { status: 400 });
+      return NextResponse.json({ error: 'ID (Wallet) y Nombre son requeridos' }, { status: 400, headers: corsHeaders });
     }
     
     const randomLat = -12.0464 + (Math.random() - 0.5) * 0.15;
@@ -55,27 +61,22 @@ export async function POST(request: Request) {
           registeredAt: new Date(),
         }
       });
-      return NextResponse.json(newMerchant, { status: 201 });
+      // IMPORTANTE: Devolvemos el objeto real creado en la DB
+      return NextResponse.json(newMerchant, { status: 201, headers: corsHeaders });
     }
 
+    // Fallback si no hay conexión a DB
     return NextResponse.json({ 
-      message: "Modo Demo: Registro recibido", 
+      error: "Base de datos no disponible", 
       data: { ...body, lat: randomLat, lng: randomLng } 
-    }, { status: 201 });
+    }, { status: 503, headers: corsHeaders });
 
   } catch (error) {
     console.error("Error al registrar comercio:", error);
-    return NextResponse.json({ error: 'Error interno al registrar' }, { status: 500 });
+    return NextResponse.json({ error: 'Error interno al registrar' }, { status: 500, headers: corsHeaders });
   }
 }
 
 export async function OPTIONS() {
-  return new NextResponse(null, {
-    status: 204,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    },
-  });
+  return new NextResponse(null, { status: 204, headers: corsHeaders });
 }
