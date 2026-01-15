@@ -1,22 +1,25 @@
 // API service for Score de Barrio backend
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+const API_URL = "https://barrio-ledger-dashboard.vercel.app/api";
 
-// Helper: Make API request with error handling
 async function apiRequest(endpoint, options = {}) {
-  try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+  try {    
+    const response = await fetch(`${API_URL}${endpoint}`, {
       headers: {
         'Content-Type': 'application/json',
         ...options.headers,
       },
       ...options,
     });
-
-    const data = await response.json();
+    
+    const contentType = response.headers.get("content-type");
+    let data = {};
+    if (contentType && contentType.includes("application/json")) {
+      data = await response.json();
+    }
 
     if (!response.ok) {
-      throw new Error(data.error || 'Request failed');
+      throw new Error(data.error || 'La operación falló');
     }
 
     return data;
@@ -31,8 +34,8 @@ export async function registerMerchant({ phone, businessName, location }) {
   return apiRequest('/merchants', {
     method: 'POST',
     body: JSON.stringify({
-      phone,
-      businessName,
+      id: `0x${phone}`, 
+      name: businessName,
       location,
     }),
   });
