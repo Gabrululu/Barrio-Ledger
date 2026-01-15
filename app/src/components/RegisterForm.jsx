@@ -52,7 +52,7 @@ function RegisterForm({ onRegister }) {
             <Store className="w-10 h-10 text-white" />
           </div>
           <h1 className="text-4xl font-bold text-gray-900 mb-2">Score de Barrio</h1>
-          <p className="text-gray-600 font-medium">Inclusión financiera sobre Mantle</p>
+          <p className="text-gray-600 font-medium tracking-tight">Inclusión financiera sobre Mantle</p>
         </div>
 
         <div className="bg-white rounded-[2.5rem] shadow-2xl p-8 space-y-6 border border-gray-100">
@@ -128,10 +128,10 @@ function RegisterForm({ onRegister }) {
           </form>
 
           <div className="bg-emerald-50 rounded-2xl p-4 flex items-center space-x-3 border border-emerald-100">
-            <div className="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center shrink-0 shadow-sm">
+            <div className="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center shrink-0">
                <ShieldCheck className="w-5 h-5 text-white" />
             </div>
-            <p className="text-[10px] text-emerald-800 font-bold leading-tight">
+            <p className="text-[10px] text-emerald-800 font-bold leading-tight tracking-tight">
               Identidad protegida y respaldada por el protocolo de confianza de Mantle.
             </p>
           </div>

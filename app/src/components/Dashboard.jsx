@@ -1,24 +1,22 @@
 import { useState, useEffect } from 'react';
-import { Store, LogOut, TrendingUp, DollarSign, Zap, Activity, Download, ChevronRight, Lock, ShieldCheck, HeartPulse, Clock, Box } from 'lucide-center'; 
-import { registerSale, getSales } from '../services/api'; 
+import { 
+  Store, 
+  LogOut, 
+  TrendingUp, 
+  DollarSign, 
+  Zap, 
+  Activity, 
+  Download, 
+  ChevronRight, 
+  Lock, 
+  ShieldCheck, 
+  HeartPulse, 
+  Clock, 
+  Box 
+} from 'lucide-react';
 import SaleForm from './SaleForm';
 import SalesList from './SalesList';
-
-import { 
-  Store as StoreIcon, 
-  LogOut as LogOutIcon, 
-  TrendingUp as TrendingUpIcon, 
-  DollarSign as DollarSignIcon, 
-  Zap as ZapIcon, 
-  Activity as ActivityIcon, 
-  Download as DownloadIcon, 
-  ChevronRight as ChevronRightIcon, 
-  Lock as LockIcon, 
-  ShieldCheck as ShieldCheckIcon, 
-  HeartPulse as HeartPulseIcon, 
-  Clock as ClockIcon, 
-  Box as BoxIcon 
-} from 'lucide-react';
+import { getSales } from '../services/api';
 
 function Dashboard({ merchant, onLogout }) {
   const [sales, setSales] = useState([]);
@@ -26,6 +24,7 @@ function Dashboard({ merchant, onLogout }) {
   const [monthTotal, setMonthTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   
+  // Estados para Mantle Batching Log
   const [timeAgo, setTimeAgo] = useState("Sincronizando...");
   const [showHashAlert, setShowHashAlert] = useState(false);
   const [lastHash, setLastHash] = useState("");
@@ -34,6 +33,7 @@ function Dashboard({ merchant, onLogout }) {
   const businessName = merchant.name || merchant.businessName || "Mi Negocio";
   const score = merchant.score || 0;
 
+  // Carga inicial y sonido
   useEffect(() => {
     const playIntroSound = () => {
       const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2017/2017-preview.mp3');
@@ -47,6 +47,7 @@ function Dashboard({ merchant, onLogout }) {
     }
   }, [merchantId]);
 
+  // Monitor dinámico de sincronización
   useEffect(() => {
     const updateLog = () => {
       if (sales.length === 0) {
@@ -58,6 +59,7 @@ function Dashboard({ merchant, onLogout }) {
       const diffSeconds = Math.floor((new Date() - lastDate) / 1000);
       const diffMins = Math.floor(diffSeconds / 60);
 
+      // TRIGGER: Cada 2 minutos de inactividad simula cierre de lote
       if (diffSeconds === 120) {
         const mockHash = "0x" + Math.random().toString(16).slice(2, 10) + "..." + Math.random().toString(16).slice(2, 6);
         setLastHash(mockHash);
@@ -119,24 +121,25 @@ function Dashboard({ merchant, onLogout }) {
 
   return (
     <div className="min-h-screen bg-slate-50 pb-32">
+      {/* ALERTA DE BATCHING PERSONALIZADA */}
       {showHashAlert && (
         <div className="fixed top-20 left-4 right-4 z-50 animate-bounce">
           <div className="bg-slate-900 border-2 border-emerald-500 text-white p-4 rounded-3xl shadow-2xl flex items-center space-x-4">
-            <BoxIcon className="w-8 h-8 text-emerald-500" />
+            <Box className="w-8 h-8 text-emerald-500" />
             <div className="flex-1">
               <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Mantle Layer 2 Batch</p>
-              <h4 className="text-sm font-bold">¡Hash de bloque generado!</h4>
+              <h4 className="text-sm font-bold leading-tight">¡Lote de {businessName.split(' ')[0]} asegurado!</h4>
               <p className="text-[9px] text-slate-400 font-mono truncate">{lastHash}</p>
             </div>
           </div>
         </div>
       )}
 
-      <header className="bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-20">
+      <header className="bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-20 shadow-sm">
         <div className="max-w-2xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
-              <StoreIcon className="w-5 h-5 text-white" />
+              <Store className="w-5 h-5 text-white" />
             </div>
             <div>
               <h1 className="font-bold text-slate-900 leading-tight">{businessName}</h1>
@@ -144,7 +147,7 @@ function Dashboard({ merchant, onLogout }) {
             </div>
           </div>
           <button onClick={onLogout} className="p-2 text-slate-400 hover:text-red-500 transition-colors">
-            <LogOutIcon className="w-5 h-5" />
+            <LogOut className="w-5 h-5" />
           </button>
         </div>
       </header>
@@ -152,33 +155,33 @@ function Dashboard({ merchant, onLogout }) {
       <main className="max-w-2xl mx-auto px-4 py-6 space-y-6">
         <div className="bg-emerald-900 text-white p-6 rounded-[2.5rem] shadow-xl relative overflow-hidden">
           <div className="relative z-10">
-            <h2 className="text-xl font-bold mb-1 italic">¡Hola, {businessName.split(' ')[0]}!</h2>
-            <p className="text-emerald-100 text-xs opacity-80 font-medium">Reputación financiera: {score} pts.</p>
+            <h2 className="text-xl font-bold mb-1 italic tracking-tight italic">¡Hola, {businessName.split(' ')[0]}!</h2>
+            <p className="text-emerald-100 text-xs opacity-80 font-medium">Score verificado: {score} pts.</p>
             <button onClick={exportToCSV} className="mt-4 bg-white/10 hover:bg-white/20 text-white text-[10px] font-black py-2.5 px-5 rounded-full flex items-center transition-all border border-white/20 uppercase tracking-widest">
-              <DownloadIcon className="w-3 h-3 mr-2" /> Descargar CSV
+              <Download className="w-3 h-3 mr-2" /> Descargar CSV
             </button>
           </div>
-          <TrendingUpIcon className="absolute -right-4 -bottom-4 w-32 h-32 text-white/5 rotate-12" />
+          <TrendingUp className="absolute -right-4 -bottom-4 w-32 h-32 text-white/5 rotate-12" />
         </div>
 
         {score >= 80 ? (
           <div className="bg-gradient-to-br from-indigo-600 to-purple-800 rounded-[2.5rem] p-7 text-white shadow-2xl">
             <div className="flex items-center justify-between mb-4">
-              <div className="bg-white/20 p-2.5 rounded-2xl"><ZapIcon className="w-6 h-6 text-yellow-300 fill-yellow-300" /></div>
-              <span className="text-[10px] font-black bg-emerald-500/20 text-emerald-300 px-3 py-1 rounded-full border border-emerald-500/30 uppercase">Línea Desbloqueada</span>
+              <div className="bg-white/20 p-2.5 rounded-2xl"><Zap className="w-6 h-6 text-yellow-300 fill-yellow-300" /></div>
+              <span className="text-[10px] font-black bg-emerald-500/20 text-emerald-300 px-3 py-1 rounded-full border border-emerald-500/30 uppercase tracking-widest">Crédito Activo</span>
             </div>
-            <h3 className="text-2xl font-black mb-1">¡Crédito Disponible!</h3>
-            <p className="text-indigo-100 text-xs mb-6 opacity-90 leading-relaxed">Tu flujo verificado en Mantle te permite acceder a capital sin trámites burocráticos.</p>
-            <button onClick={() => alert("Solicitando a Mantle...")} className="w-full bg-white text-indigo-700 font-black py-4 rounded-2xl shadow-xl hover:scale-[1.02] transition-transform flex items-center justify-center space-x-2">
-              <span>SOLICITAR S/ 1,500.00</span><ChevronRightIcon className="w-4 h-4" />
+            <h3 className="text-2xl font-black mb-1">Financiamiento Inmediato</h3>
+            <p className="text-indigo-100 text-xs mb-6 opacity-90 leading-relaxed">Tu reputación en la red Mantle te otorga acceso a capital de trabajo sin trámites.</p>
+            <button onClick={() => alert("Solicitando fondos a Mantle Pools...")} className="w-full bg-white text-indigo-700 font-black py-4 rounded-2xl shadow-xl hover:scale-[1.02] transition-transform flex items-center justify-center space-x-2 text-sm">
+              <span>SOLICITAR S/ 1,500.00</span><ChevronRight className="w-4 h-4" />
             </button>
           </div>
         ) : (
           <div className="bg-white rounded-[2.5rem] p-7 border-2 border-dashed border-slate-200 shadow-sm">
-            <div className="flex items-center justify-between opacity-30 mb-4 font-black">
-              <span className="text-[10px] text-slate-500 uppercase tracking-widest">Acceso a Financiamiento</span><LockIcon className="w-4 h-4 text-slate-500" />
+            <div className="flex items-center justify-between opacity-30 mb-4 font-black tracking-tight">
+              <span className="text-[10px] text-slate-500 uppercase tracking-widest tracking-tighter">Inclusión Financiera</span><Lock className="w-4 h-4 text-slate-500" />
             </div>
-            <p className="text-slate-500 text-sm font-medium">Alcanza los <span className="font-bold text-indigo-600 underline underline-offset-4">80 pts</span> para desbloquear beneficios.</p>
+            <p className="text-slate-500 text-sm font-medium">Llega a los <span className="font-bold text-indigo-600 underline underline-offset-4 tracking-tighter">80 pts</span> para financiamiento.</p>
             <div className="mt-5 w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
               <div className="bg-indigo-500 h-full transition-all duration-1000" style={{ width: `${(score / 80) * 100}%` }}></div>
             </div>
@@ -187,24 +190,24 @@ function Dashboard({ merchant, onLogout }) {
 
         <div className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm">
           <div className="flex items-center justify-between mb-5">
-            <div className="flex items-center space-x-2"><HeartPulseIcon className="w-4 h-4 text-rose-500" /><h3 className="text-xs font-black text-slate-400 uppercase tracking-wider">Salud de Integridad</h3></div>
-            <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full">Óptima</span>
+            <div className="flex items-center space-x-2"><HeartPulse className="w-4 h-4 text-rose-500" /><h3 className="text-xs font-black text-slate-400 uppercase tracking-wider">Salud de Integridad</h3></div>
+            <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full tracking-tight font-black">Óptima</span>
           </div>
           <div className="grid grid-cols-3 gap-3">
             {[{l:'Consistencia',v:'98%'},{l:'Verif. Social',v:'Alta'},{l:'Anomalías',v:'0%'}].map((s,i)=>(
-              <div key={i} className="bg-slate-50 p-3 rounded-2xl border border-slate-100 text-center shadow-inner"><p className="text-[8px] text-slate-400 uppercase font-black mb-1 tracking-tighter">{s.l}</p><p className="text-xs font-black text-slate-800">{s.v}</p></div>
+              <div key={i} className="bg-slate-50 p-3 rounded-2xl border border-slate-100 text-center shadow-inner tracking-tight leading-tight"><p className="text-[8px] text-slate-400 uppercase font-black mb-1 tracking-tighter">{s.l}</p><p className="text-xs font-black text-slate-800">{s.v}</p></div>
             ))}
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm text-center">
-            <p className="text-[10px] font-black text-slate-400 uppercase mb-2 tracking-widest">Hoy</p>
-            <p className="text-2xl font-black text-slate-800">S/ {todayTotal.toFixed(2)}</p>
+        <div className="grid grid-cols-2 gap-4 text-center">
+          <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm">
+            <p className="text-[10px] font-black text-slate-400 uppercase mb-2 tracking-widest tracking-tighter">Hoy</p>
+            <p className="text-2xl font-black text-slate-800 tracking-tight">S/ {todayTotal.toFixed(2)}</p>
           </div>
-          <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm text-center">
-            <p className="text-[10px] font-black text-slate-400 uppercase mb-2 tracking-widest">Mes</p>
-            <p className="text-2xl font-black text-slate-800">S/ {monthTotal.toFixed(2)}</p>
+          <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm">
+            <p className="text-[10px] font-black text-slate-400 uppercase mb-2 tracking-widest tracking-tighter">Mes</p>
+            <p className="text-2xl font-black text-slate-800 tracking-tight">S/ {monthTotal.toFixed(2)}</p>
           </div>
         </div>
 
@@ -212,7 +215,7 @@ function Dashboard({ merchant, onLogout }) {
 
         <div className="space-y-4 pb-12">
           <h3 className="font-black text-slate-800 text-sm italic px-2 flex items-center">
-            <ActivityIcon className="w-4 h-4 mr-2 text-emerald-500" />
+            <Activity className="w-4 h-4 mr-2 text-emerald-500" />
             Actividad en tiempo real
           </h3>
           <SalesList sales={sales} loading={loading} />
@@ -228,13 +231,13 @@ function Dashboard({ merchant, onLogout }) {
             </div>
             <div className="flex flex-col">
               <span className="text-[10px] font-black text-slate-900 uppercase">Mantle L2 Active</span>
-              <span className="text-[8px] font-bold text-emerald-600 uppercase tracking-widest">Sincronización segura</span>
+              <span className="text-[8px] font-bold text-emerald-600 uppercase tracking-widest tracking-tighter leading-none">Sincronización segura</span>
             </div>
           </div>
           
           <div className="flex items-center space-x-2 bg-slate-100 px-4 py-2 rounded-full border border-slate-200 shadow-inner">
-            <ClockIcon className="w-3.5 h-3.5 text-slate-400" />
-            <span className="text-[10px] font-black text-slate-600 uppercase">Último anclaje: {timeAgo}</span>
+            <Clock className="w-3.5 h-3.5 text-slate-400" />
+            <span className="text-[10px] font-black text-slate-600 uppercase tracking-tighter">Último anclaje: {timeAgo}</span>
           </div>
         </div>
       </footer>
