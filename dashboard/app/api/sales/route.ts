@@ -5,14 +5,22 @@ export const dynamic = 'force-dynamic';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 };
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
+    const body = await request.json();    
+    console.log("Cuerpo recibido en /api/sales:", body);
+    
     const { amount, paymentMethod, merchantId } = body;
+    
+    if (!merchantId) {
+      return NextResponse.json({ 
+        error: 'Error: merchantId no proporcionado' 
+      }, { status: 400, headers: corsHeaders });
+    }
 
     if (!prisma) {
       return NextResponse.json({ error: 'DB no conectada' }, { status: 500, headers: corsHeaders });
@@ -25,7 +33,7 @@ export async function POST(request: Request) {
 
     if (!merchantExists) {
       return NextResponse.json({ 
-        error: 'El comercio no existe. Regístralo primero en la App.' 
+        error: `El comercio con ID ${merchantId} no existe.` 
       }, { status: 404, headers: corsHeaders });
     }
 
@@ -39,7 +47,7 @@ export async function POST(request: Request) {
       }
     });
 
-    // 3. (Opcional) Actualizar las estadísticas del Merchant    
+    // 3. Actualizar estadísticas del Merchant
     const currentStats = (merchantExists.stats as any) || {};
     await (prisma as any).merchant.update({
       where: { id: merchantId },
@@ -52,13 +60,17 @@ export async function POST(request: Request) {
       }
     });
 
-    return NextResponse.json(newSale, { status: 201, headers: corsHeaders });
+    return NextResponse.json({ success: true, sale: newSale }, { status: 201, headers: corsHeaders });
   } catch (error: any) {
     console.error("Error en registro de venta:", error.message);
     return NextResponse.json({ 
-      error: 'Error al procesar venta: ' + error.message 
+      error: 'Error interno: ' + error.message 
     }, { status: 500, headers: corsHeaders });
   }
+}
+
+export async function GET() {
+  return NextResponse.json({ message: "Sales endpoint active" }, { headers: corsHeaders });
 }
 
 export async function OPTIONS() {

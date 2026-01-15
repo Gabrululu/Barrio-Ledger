@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Banknote, Smartphone, Check, Plus } from 'lucide-react';
 import { registerSale } from '../services/api';
 
-function SaleForm({ apiKey, onSaleRegistered }) {
+function SaleForm({ merchantId, onSaleRegistered }) {
   const [paymentMethod, setPaymentMethod] = useState('cash');
   const [amount, setAmount] = useState('');
   const [loading, setLoading] = useState(false);
@@ -20,24 +20,31 @@ function SaleForm({ apiKey, onSaleRegistered }) {
       return;
     }
 
+    if (!merchantId) {
+      alert('Error: No se encontró el ID del comerciante. Reintenta el registro.');
+      return;
+    }
+
     setLoading(true);
     setSuccess(false);
 
-    try {
+    try {      
       const response = await registerSale({
         amount: parseFloat(amount),
-        paymentMethod,
-        apiKey
+        paymentMethod: paymentMethod,
+        merchantId: merchantId 
       });
 
-      if (response.success) {
+      if (response.success || response.id) {
         setSuccess(true);
+                
+        const saleData = response.sale || response;
         
         onSaleRegistered({
-          id: response.sale.id,
-          amount: response.sale.amount,
+          id: saleData.id,
+          amount: saleData.amount,
           payment_method: paymentMethod,
-          created_at: response.sale.timestamp || Math.floor(Date.now() / 1000)
+          created_at: saleData.timestamp || Math.floor(Date.now() / 1000)
         });
 
         setTimeout(() => {
@@ -46,6 +53,7 @@ function SaleForm({ apiKey, onSaleRegistered }) {
         }, 1500);
       }
     } catch (error) {
+      console.error("Error en submit:", error);
       alert('Error al registrar venta: ' + error.message);
     } finally {
       setLoading(false);
@@ -60,55 +68,45 @@ function SaleForm({ apiKey, onSaleRegistered }) {
       </h2>
       
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Payment Method Tabs */}
         <div>
           <p className="text-sm font-semibold text-gray-700 mb-3">Método de Pago</p>
           <div className="grid grid-cols-2 gap-3">
-            {[
-              { id: 'cash', label: 'Efectivo', icon: Banknote, color: 'amber' },
-              { id: 'digital', label: 'Digital', icon: Smartphone, color: 'blue' }
-            ].map(method => (
-              <button
-                key={method.id}
-                type="button"
-                onClick={() => setPaymentMethod(method.id)}
-                className={`p-4 rounded-xl border-2 transition-all ${
-                  paymentMethod === method.id
-                    ? `border-${method.color}-500 bg-${method.color}-50`
-                    : 'border-gray-200 bg-white hover:border-gray-300'
-                }`}
-              >
-                <method.icon className={`w-6 h-6 mx-auto mb-2 ${
-                  paymentMethod === method.id ? `text-${method.color}-600` : 'text-gray-400'
-                }`} />
-                <span className={`text-sm font-semibold ${
-                  paymentMethod === method.id ? `text-${method.color}-900` : 'text-gray-600'
-                }`}>
-                  {method.label}
-                </span>
-              </button>
-            ))}
+            <button
+              type="button"
+              onClick={() => setPaymentMethod('cash')}
+              className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center ${
+                paymentMethod === 'cash' ? 'border-amber-500 bg-amber-50' : 'border-gray-200 bg-white'
+              }`}
+            >
+              <Banknote className={`w-6 h-6 mb-2 ${paymentMethod === 'cash' ? 'text-amber-600' : 'text-gray-400'}`} />
+              <span className={`text-sm font-semibold ${paymentMethod === 'cash' ? 'text-amber-900' : 'text-gray-600'}`}>Efectivo</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setPaymentMethod('digital')}
+              className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center ${
+                paymentMethod === 'digital' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white'
+              }`}
+            >
+              <Smartphone className={`w-6 h-6 mb-2 ${paymentMethod === 'digital' ? 'text-blue-600' : 'text-gray-400'}`} />
+              <span className={`text-sm font-semibold ${paymentMethod === 'digital' ? 'text-blue-900' : 'text-gray-600'}`}>Digital</span>
+            </button>
           </div>
         </div>
 
-        {/* Amount Input */}
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-3">
-            Monto (S/)
-          </label>
+          <label className="block text-sm font-semibold text-gray-700 mb-3">Monto (S/)</label>
           <input
             type="number"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
             placeholder="0.00"
             step="0.01"
-            min="0"
-            className="w-full px-4 py-3 text-2xl font-bold text-center bg-gray-50 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+            className="w-full px-4 py-3 text-2xl font-bold text-center bg-gray-50 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 outline-none transition-all"
             disabled={loading}
           />
         </div>
 
-        {/* Quick Amount Buttons */}
         <div>
           <p className="text-xs font-semibold text-gray-600 mb-2">Montos frecuentes</p>
           <div className="grid grid-cols-4 gap-2">
@@ -125,27 +123,17 @@ function SaleForm({ apiKey, onSaleRegistered }) {
           </div>
         </div>
 
-        {/* Submit Button */}
         <button
           type="submit"
           disabled={loading || !amount}
-          className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 disabled:from-gray-400 disabled:to-gray-400 text-white font-bold py-4 rounded-xl transition-all flex items-center justify-center space-x-2 text-lg disabled:cursor-not-allowed"
+          className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white font-bold py-4 rounded-xl transition-all flex items-center justify-center space-x-2 text-lg active:scale-95 disabled:opacity-50"
         >
           {success ? (
-            <>
-              <Check className="w-6 h-6" />
-              <span>¡Venta Registrada!</span>
-            </>
+            <><Check className="w-6 h-6" /><span>¡Venta Registrada!</span></>
           ) : loading ? (
-            <>
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-              <span>Registrando...</span>
-            </>
+            <><div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div><span>Registrando...</span></>
           ) : (
-            <>
-              <Plus className="w-6 h-6" />
-              <span>Registrar Venta</span>
-            </>
+            <><Plus className="w-6 h-6" /><span>Registrar Venta</span></>
           )}
         </button>
       </form>

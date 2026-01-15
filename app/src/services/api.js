@@ -1,5 +1,3 @@
-// API service for Score de Barrio backend
-
 const API_URL = "https://barrio-ledger-dashboard.vercel.app/api";
 
 async function apiRequest(endpoint, options = {}) {
@@ -29,46 +27,38 @@ async function apiRequest(endpoint, options = {}) {
   }
 }
 
-// Register a new merchant
+// Registro de Comercio
 export async function registerMerchant({ phone, businessName, location }) {
-  const response = await fetch('https://barrio-ledger-dashboard.vercel.app/api/merchants', {
+  // Usamos el ID formateado como 0x... para simular una wallet de Mantle
+  const merchantId = `0x${phone}`;
+  
+  return apiRequest('/merchants', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      id: `0x${phone}`, 
+      id: merchantId, 
       name: businessName, 
       location: location
     }),
   });
-  return response.json();
 }
 
-// Register a sale
+// Registro de Venta - Sincronizado con SaleForm y Dashboard
 export async function registerSale({ amount, paymentMethod, merchantId }) {
   return apiRequest('/sales', {
     method: 'POST',
     body: JSON.stringify({
-      merchantId, // ID del comercio que realiza la venta
+      merchantId, 
       amount: parseFloat(amount),
-      paymentMethod, // "Cash", "Digital", "Crypto"
+      paymentMethod,
       timestamp: new Date().toISOString()
     }),
   });
 }
 
-// Get sales for a merchant
-export async function getSales(merchantId, limit = 50, offset = 0) {
-  return apiRequest(`/sales/merchant/${merchantId}?limit=${limit}&offset=${offset}`);
+export async function getSales(merchantId) {
+  return apiRequest(`/sales?merchantId=${merchantId}`);
 }
 
-// Get merchant info
 export async function getMerchantInfo(merchantId) {
   return apiRequest(`/merchants/${merchantId}`);
-}
-
-// Health check
-export async function healthCheck() {
-  return apiRequest('/health', {
-    baseUrl: API_URL.replace('/api', ''),
-  });
 }
