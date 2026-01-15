@@ -42,16 +42,14 @@ export async function registerMerchant({ phone, businessName, location }) {
 }
 
 // Register a sale
-export async function registerSale({ amount, paymentMethod, apiKey }) {
+export async function registerSale({ amount, paymentMethod, merchantId }) {
   return apiRequest('/sales', {
     method: 'POST',
-    headers: {
-      'X-API-Key': apiKey,
-    },
     body: JSON.stringify({
-      amount,
-      paymentMethod,
-      timestamp: Math.floor(Date.now() / 1000),
+      merchantId, // ID del comercio que realiza la venta
+      amount: parseFloat(amount),
+      paymentMethod, // "Cash", "Digital", "Crypto"
+      timestamp: new Date().toISOString()
     }),
   });
 }
