@@ -1,5 +1,6 @@
 datasource db {
-  provider = "postgresql"  
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 generator client {
@@ -13,10 +14,9 @@ model Merchant {
   lat            Float?   
   lng            Float?   
   registeredAt   DateTime @default(now())
-  score          Int      @default(0)  
+  score          Int      @default(0)
   scoreBreakdown Json     @default("{}")
   stats          Json     @default("{}")
-    
   sales          Sale[]
 }
 
@@ -26,6 +26,5 @@ model Sale {
   paymentMethod String
   merchantId    String
   timestamp     DateTime @default(now())
-    
   merchant      Merchant @relation(fields: [merchantId], references: [id])
 }
