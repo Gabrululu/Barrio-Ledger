@@ -69,8 +69,22 @@ export async function POST(request: Request) {
   }
 }
 
-export async function GET() {
-  return NextResponse.json({ message: "Sales endpoint active" }, { headers: corsHeaders });
+export async function GET(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const merchantId = searchParams.get('merchantId');
+
+    if (!prisma) throw new Error("DB no conectada");
+
+    const sales = await (prisma as any).sale.findMany({
+      where: merchantId ? { merchantId: merchantId } : {},
+      orderBy: { timestamp: 'desc' },
+    });
+
+    return NextResponse.json({ sales }, { headers: corsHeaders });
+  } catch (error) {
+    return NextResponse.json({ error: "Error al obtener ventas" }, { status: 500, headers: corsHeaders });
+  }
 }
 
 export async function OPTIONS() {
