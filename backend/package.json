@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "description": "Backend/Relayer for Score de Barrio - Mantle Network",
   "main": "src/server.js",
-  "scripts": {
+  "scripts": {    
+    "start": "pm2-runtime start ecosystem.config.js",
     "dev": "nodemon src/server.js",
-    "migrate": "node src/scripts/migrate.js",
-    "start": "node src/server.js",
+    "migrate": "node src/scripts/migrate.js",    
     "sync": "node src/jobs/syncBuckets.js",
     "test": "jest"
   },
@@ -19,7 +19,7 @@
   "author": "Your Name",
   "license": "MIT",
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.19.0"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.2.0",
