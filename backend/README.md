@@ -1,6 +1,6 @@
-# 🏗️ Score de Barrio - Backend API
+# 🏗️ Barrio Ledger - Backend API
 
-Backend/Relayer para Score de Barrio. Agrega ventas de comercios y las sincroniza con smart contracts en Mantle Sepolia.
+Backend/Relayer para Barrio Ledger. Agrega ventas de comercios y las sincroniza con smart contracts en Mantle Sepolia.
 
 ---
 

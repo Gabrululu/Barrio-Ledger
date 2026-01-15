@@ -1,4 +1,4 @@
-# 📱 Score de Barrio - PWA
+# 📱 Barrio Ledger - PWA
 
 Progressive Web App para que los bodegueros registren ventas fácilmente.
 
@@ -206,7 +206,7 @@ vercel login
 vercel --prod
 
 # Configurar variables de entorno en Vercel dashboard
-# VITE_API_URL = https://api.scoredebarrio.com/api
+# VITE_API_URL = https://api.barrioledger.com/api
 ```
 
 ### Netlify

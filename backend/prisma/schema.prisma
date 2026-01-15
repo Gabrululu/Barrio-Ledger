@@ -8,11 +8,23 @@ generator client {
 }
 
 model Merchant {
-  id            String   @id
-  name          String
-  location      String
-  registeredAt  DateTime @default(now())
-  score         Int      @default(0)
-  scoreBreakdown Json
-  stats         Json
+  id             String   @id
+  name           String
+  location       String
+  lat            Float?   
+  lng            Float?   
+  registeredAt   DateTime @default(now())
+  score          Int      @default(0)
+  scoreBreakdown Json     @default("{}")
+  stats          Json     @default("{}")
+  sales          Sale[]
+}
+
+model Sale {
+  id            Int      @id @default(autoincrement())
+  amount        Float
+  paymentMethod String
+  merchantId    String
+  timestamp     DateTime @default(now())
+  merchant      Merchant @relation(fields: [merchantId], references: [id])
 }
