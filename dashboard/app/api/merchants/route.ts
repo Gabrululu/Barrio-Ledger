@@ -43,30 +43,45 @@ export async function POST(request: Request) {
     if (!id || !name) {
       return NextResponse.json({ error: 'ID y Nombre requeridos' }, { status: 400, headers: corsHeaders });
     }
+
+    if (!prisma) {
+      return NextResponse.json({ error: "Servicio de base de datos no disponible" }, { status: 503, headers: corsHeaders });
+    }
     
+    const existingMerchant = await (prisma as any).merchant.findUnique({
+      where: { id }
+    });
+
+    if (existingMerchant) {
+      console.log(`Comerciante existente encontrado: ${id}. Iniciando sesión.`);
+      return NextResponse.json(existingMerchant, { status: 200, headers: corsHeaders });
+    }
+    
+    // Si no existe, procedemos a crearlo
     const randomLat = -12.0464 + (Math.random() - 0.5) * 0.15;
     const randomLng = -77.0428 + (Math.random() - 0.5) * 0.15;
 
-    if (prisma) {
-      const newMerchant = await (prisma as any).merchant.create({
-        data: {
-          id,
-          name,
-          location: location || 'Lima, Perú',
-          lat: randomLat,
-          lng: randomLng,
-          score: 75,
-          registeredAt: new Date(),
-          scoreBreakdown: {}, 
-          stats: { totalSales: 0 } 
-        }
-      });
-      return NextResponse.json(newMerchant, { status: 201, headers: corsHeaders });
-    }
-    return NextResponse.json({ error: "DB no conectada" }, { status: 503, headers: corsHeaders });
+    const newMerchant = await (prisma as any).merchant.create({
+      data: {
+        id,
+        name,
+        location: location || 'Lima, Perú',
+        lat: randomLat,
+        lng: randomLng,
+        score: 75,
+        registeredAt: new Date(),
+        scoreBreakdown: {}, 
+        stats: { totalSales: 0 } 
+      }
+    });
+
+    return NextResponse.json(newMerchant, { status: 201, headers: corsHeaders });
+
   } catch (error: any) {
     console.error("Error Prisma Merchant:", error.message);
-    return NextResponse.json({ error: 'Error interno: ' + error.message }, { status: 500, headers: corsHeaders });
+    return NextResponse.json({ 
+      error: 'Error interno en el servidor: ' + error.message 
+    }, { status: 500, headers: corsHeaders });
   }
 }
 
