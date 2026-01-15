@@ -9,22 +9,35 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 };
 
+export async function GET(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const merchantId = searchParams.get('merchantId');
+
+    if (!prisma) throw new Error("DB no conectada");
+    
+    const sales = await (prisma as any).sale.findMany({
+      where: merchantId ? { merchantId: merchantId } : {},
+      orderBy: { timestamp: 'desc' },
+    });
+
+    return NextResponse.json({ sales }, { headers: corsHeaders });
+  } catch (error: any) {
+    console.error("Error al obtener ventas:", error.message);
+    return NextResponse.json({ error: "Error al obtener ventas" }, { status: 500, headers: corsHeaders });
+  }
+}
+
 export async function POST(request: Request) {
   try {
-    const body = await request.json();    
-    console.log("Cuerpo recibido en /api/sales:", body);
-    
+    const body = await request.json();
     const { amount, paymentMethod, merchantId } = body;
-    
+
     if (!merchantId) {
-      return NextResponse.json({ 
-        error: 'Error: merchantId no proporcionado' 
-      }, { status: 400, headers: corsHeaders });
+      return NextResponse.json({ error: 'merchantId requerido' }, { status: 400, headers: corsHeaders });
     }
 
-    if (!prisma) {
-      return NextResponse.json({ error: 'DB no conectada' }, { status: 500, headers: corsHeaders });
-    }
+    if (!prisma) throw new Error("DB no conectada");
 
     // 1. Validar que el merchant existe
     const merchantExists = await (prisma as any).merchant.findUnique({
@@ -32,12 +45,10 @@ export async function POST(request: Request) {
     });
 
     if (!merchantExists) {
-      return NextResponse.json({ 
-        error: `El comercio con ID ${merchantId} no existe.` 
-      }, { status: 404, headers: corsHeaders });
+      return NextResponse.json({ error: 'El comercio no existe' }, { status: 404, headers: corsHeaders });
     }
 
-    // 2. Crear la venta vinculada al merchant
+    // 2. Crear la venta
     const newSale = await (prisma as any).sale.create({
       data: {
         amount: parseFloat(amount),
@@ -62,28 +73,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true, sale: newSale }, { status: 201, headers: corsHeaders });
   } catch (error: any) {
-    console.error("Error en registro de venta:", error.message);
-    return NextResponse.json({ 
-      error: 'Error interno: ' + error.message 
-    }, { status: 500, headers: corsHeaders });
-  }
-}
-
-export async function GET(request: Request) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const merchantId = searchParams.get('merchantId');
-
-    if (!prisma) throw new Error("DB no conectada");
-
-    const sales = await (prisma as any).sale.findMany({
-      where: merchantId ? { merchantId: merchantId } : {},
-      orderBy: { timestamp: 'desc' },
-    });
-
-    return NextResponse.json({ sales }, { headers: corsHeaders });
-  } catch (error) {
-    return NextResponse.json({ error: "Error al obtener ventas" }, { status: 500, headers: corsHeaders });
+    return NextResponse.json({ error: error.message }, { status: 500, headers: corsHeaders });
   }
 }
 
