@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Store, MapPin, Phone, ArrowRight } from 'lucide-react';
+import { Store, MapPin, Phone, ArrowRight, ShieldCheck } from 'lucide-react';
 import { registerMerchant } from '../services/api';
 
 function RegisterForm({ onRegister }) {
@@ -26,9 +26,9 @@ function RegisterForm({ onRegister }) {
       if (response.error) {
         throw new Error(response.error);
       }
-            
+      
       onRegister({
-        id: response.id, 
+        id: response.id,
         merchantId: response.id,
         businessName: response.name || formData.businessName,
         location: response.location || formData.location,
@@ -37,8 +37,8 @@ function RegisterForm({ onRegister }) {
       });
 
     } catch (err) {
-      console.error("Error en el flujo de registro:", err);
-      setError(err.message || 'No se pudo conectar con el servidor de Mantle');
+      console.error("Error en registro:", err);
+      setError(err.message || 'Error de conexión');
     } finally {
       setLoading(false);
     }
@@ -51,13 +51,13 @@ function RegisterForm({ onRegister }) {
           <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-green-400 to-green-600 rounded-2xl mb-4 shadow-lg">
             <Store className="w-10 h-10 text-white" />
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-2 tracking-tight">Score de Barrio</h1>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">Score de Barrio</h1>
           <p className="text-gray-600 font-medium">Inclusión financiera sobre Mantle</p>
         </div>
 
         <div className="bg-white rounded-[2.5rem] shadow-2xl p-8 space-y-6 border border-gray-100">
           {error && (
-            <div className="bg-red-50 border border-red-100 text-red-600 px-4 py-3 rounded-2xl text-xs font-bold animate-shake">
+            <div className="bg-red-50 border border-red-100 text-red-600 px-4 py-3 rounded-2xl text-xs font-bold">
               {error}
             </div>
           )}
@@ -72,7 +72,7 @@ function RegisterForm({ onRegister }) {
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                   placeholder="987654321"
-                  className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-transparent focus:border-green-500 focus:bg-white rounded-2xl transition-all outline-none font-bold"
+                  className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-transparent focus:border-green-500 focus:bg-white rounded-2xl transition-all outline-none font-bold text-slate-700"
                   disabled={loading}
                 />
               </div>
@@ -87,7 +87,7 @@ function RegisterForm({ onRegister }) {
                   value={formData.businessName}
                   onChange={(e) => setFormData({ ...formData, businessName: e.target.value })}
                   placeholder="Bodega Don Pepe"
-                  className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-transparent focus:border-green-500 focus:bg-white rounded-2xl transition-all outline-none font-bold"
+                  className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-transparent focus:border-green-500 focus:bg-white rounded-2xl transition-all outline-none font-bold text-slate-700"
                   disabled={loading}
                 />
               </div>
@@ -102,7 +102,7 @@ function RegisterForm({ onRegister }) {
                   value={formData.location}
                   onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                   placeholder="Miraflores, Lima"
-                  className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-transparent focus:border-green-500 focus:bg-white rounded-2xl transition-all outline-none font-bold"
+                  className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-transparent focus:border-green-500 focus:bg-white rounded-2xl transition-all outline-none font-bold text-slate-700"
                   disabled={loading}
                 />
               </div>
@@ -128,7 +128,7 @@ function RegisterForm({ onRegister }) {
           </form>
 
           <div className="bg-emerald-50 rounded-2xl p-4 flex items-center space-x-3 border border-emerald-100">
-            <div className="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center shrink-0">
+            <div className="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center shrink-0 shadow-sm">
                <ShieldCheck className="w-5 h-5 text-white" />
             </div>
             <p className="text-[10px] text-emerald-800 font-bold leading-tight">
