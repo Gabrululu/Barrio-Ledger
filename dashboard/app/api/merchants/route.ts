@@ -3,18 +3,18 @@ import { prisma } from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
 
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+};
+
 const mockMerchants = [
   { id: 'mock-1', name: 'Bodega Don Pepe', location: 'Miraflores', lat: -12.1223, lng: -77.0285, score: 92 },
   { id: 'mock-2', name: 'Minimarket El Sol', location: 'San Isidro', lat: -12.0950, lng: -77.0320, score: 87 },
   { id: 'mock-3', name: 'Bodega La Esquina', location: 'Barranco', lat: -12.1478, lng: -77.0220, score: 78 },
   { id: 'mock-4', name: 'Tienda Mi Barrio', location: 'San Miguel', lat: -12.0750, lng: -77.0850, score: 65 },
 ];
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-};
 
 export async function GET(request: Request) {
   try {
@@ -29,10 +29,8 @@ export async function GET(request: Request) {
     }
         
     const allMerchants = [...dbMerchants, ...mockMerchants].filter(m => (m.score || 0) >= minScore);
-
     return NextResponse.json({ merchants: allMerchants }, { headers: corsHeaders });
   } catch (error) {
-    console.error("Error en GET merchants:", error);
     return NextResponse.json({ merchants: mockMerchants }, { headers: corsHeaders });
   }
 }
@@ -43,7 +41,7 @@ export async function POST(request: Request) {
     const { id, name, location } = body;
 
     if (!id || !name) {
-      return NextResponse.json({ error: 'ID (Wallet) y Nombre son requeridos' }, { status: 400, headers: corsHeaders });
+      return NextResponse.json({ error: 'ID y Nombre requeridos' }, { status: 400, headers: corsHeaders });
     }
     
     const randomLat = -12.0464 + (Math.random() - 0.5) * 0.15;
@@ -59,21 +57,16 @@ export async function POST(request: Request) {
           lng: randomLng,
           score: 75,
           registeredAt: new Date(),
+          scoreBreakdown: {}, // Requerido por tu schema
+          stats: { totalSales: 0 } // Requerido por tu schema
         }
       });
-      // IMPORTANTE: Devolvemos el objeto real creado en la DB
       return NextResponse.json(newMerchant, { status: 201, headers: corsHeaders });
     }
-
-    // Fallback si no hay conexión a DB
-    return NextResponse.json({ 
-      error: "Base de datos no disponible", 
-      data: { ...body, lat: randomLat, lng: randomLng } 
-    }, { status: 503, headers: corsHeaders });
-
-  } catch (error) {
-    console.error("Error al registrar comercio:", error);
-    return NextResponse.json({ error: 'Error interno al registrar' }, { status: 500, headers: corsHeaders });
+    return NextResponse.json({ error: "DB no conectada" }, { status: 503, headers: corsHeaders });
+  } catch (error: any) {
+    console.error("Error Prisma Merchant:", error.message);
+    return NextResponse.json({ error: 'Error interno: ' + error.message }, { status: 500, headers: corsHeaders });
   }
 }
 

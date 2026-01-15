@@ -15,11 +15,15 @@ export async function POST(request: Request) {
     const { amount, paymentMethod, merchantId } = body;
 
     if (!prisma) {
-      return NextResponse.json({ error: 'Base de datos no conectada' }, { status: 500, headers: corsHeaders });
+      return NextResponse.json({ error: 'DB no conectada' }, { status: 500, headers: corsHeaders });
     }
+    
+    const merchantExists = await (prisma as any).merchant.findUnique({
+      where: { id: merchantId }
+    });
 
-    if (!amount || !merchantId) {
-      return NextResponse.json({ error: 'Monto y MerchantId son requeridos' }, { status: 400, headers: corsHeaders });
+    if (!merchantExists) {
+      return NextResponse.json({ error: 'El comercio no está registrado en la base de datos' }, { status: 404, headers: corsHeaders });
     }
 
     const newSale = await (prisma as any).sale.create({
@@ -32,9 +36,9 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json(newSale, { status: 201, headers: corsHeaders });
-  } catch (error) {
-    console.error("Error al registrar venta:", error);
-    return NextResponse.json({ error: 'Error interno al procesar la venta' }, { status: 500, headers: corsHeaders });
+  } catch (error: any) {
+    console.error("Error Prisma Sale:", error.message);
+    return NextResponse.json({ error: 'Error al registrar venta: ' + error.message }, { status: 500, headers: corsHeaders });
   }
 }
 
