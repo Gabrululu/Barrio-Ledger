@@ -291,8 +291,8 @@ forge script script/Deploy.s.sol \
 
 | Componente | URL |
 |-----------|-----|
-| **App PWA** | https://barrio-ledger-app.vercel.app |
-| **Dashboard** | https://barrio-ledger-dashboard.vercel.app |
+| **App PWA** | https://barrio-ledger-app.vercel.app/ |
+| **Dashboard** | https://barrio-ledger-dashboard.vercel.app/ |
 | **Backend API** | https://barrio-ledger-backend.up.railway.app |
 | **Blockchain (Mantle)** | https://sepolia.mantlescan.xyz |
 
