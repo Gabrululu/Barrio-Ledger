@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "description": "Backend/Relayer for Score de Barrio - Mantle Network",
   "main": "src/server.js",
-  "scripts": {    
+  "scripts": {
     "start": "pm2-runtime start ecosystem.config.js",
     "dev": "nodemon src/server.js",
-    "migrate": "node src/scripts/migrate.js",    
+    "migrate": "node src/scripts/migrate.js",
     "sync": "node src/jobs/syncBuckets.js",
     "test": "jest"
   },
@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.2.0",
-    "@prisma/client": "^7.2.0",
+    "@prisma/client": "^6.19.2",
     "better-sqlite3": "^11.0.0",
     "cors": "^2.8.5",
     "dotenv": "^16.6.1",
@@ -32,7 +32,7 @@
     "express-rate-limit": "^7.1.5",
     "helmet": "^7.1.0",
     "pg": "^8.16.3",
-    "prisma": "^7.2.0",
+    "prisma": "^6.19.2",
     "sqlite": "^5.1.1",
     "sqlite3": "^5.1.7",
     "uuid": "^9.0.1"
