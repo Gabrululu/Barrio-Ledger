@@ -16,16 +16,21 @@ export async function verifyMerchantOnChain(merchantId) {
   const provider = getBlockchainProvider();
   const contract = new ethers.Contract(SALES_LOG_ADDRESS, ABI, provider);
   
-  try {    
-    const stats = await contract.getSalesStats(merchantId);
+  try {        
+    const formattedId = ethers.isHexString(merchantId) 
+      ? ethers.zeroPadValue(merchantId, 32) 
+      : ethers.id(merchantId);
+
+    const stats = await contract.getSalesStats(formattedId);
+    
     return {
       totalOnChain: ethers.formatUnits(stats.totalAmount, 18),
-      txCount: stats.txCount.toString(),
-      isVerified: true
+      txCount: stats.txCount.toString(),      
+      isVerified: Number(stats.txCount) > 0 
     };
   } catch (error) {
     console.error("Error verificando on-chain:", error);
-    return { isVerified: false };
+    return { isVerified: false, totalOnChain: "0", txCount: "0" };
   }
 }
 

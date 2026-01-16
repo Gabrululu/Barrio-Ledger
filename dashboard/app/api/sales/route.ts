@@ -19,7 +19,7 @@ export async function POST(request: Request) {
 
     if (!prisma) throw new Error("DB no conectada");
 
-    // 1. Guardar en Railway
+    // 1. Guardar en Railway de inmediato 
     const newSale = await (prisma as any).sale.create({
       data: {
         amount: parseFloat(amount),
@@ -29,30 +29,39 @@ export async function POST(request: Request) {
       }
     });
 
-    // 2. Proceso del Relayer para Mantle Sepolia    
-    try {
-      const provider = new ethers.JsonRpcProvider(process.env.MANTLE_RPC_URL);
-      const wallet = new ethers.Wallet(process.env.RELAYER_PRIVATE_KEY!, provider);
-      const contract = new ethers.Contract(process.env.SALES_EVENT_LOG_ADDRESS!, SALES_LOG_ABI, wallet);
+    // 2. Proceso del Relayer (Sin bloquear la respuesta del usuario)       
+    (async () => {
+      try {
+        const provider = new ethers.JsonRpcProvider(process.env.MANTLE_RPC_URL);
+        const wallet = new ethers.Wallet(process.env.RELAYER_PRIVATE_KEY!, provider);
+        const contract = new ethers.Contract(process.env.SALES_EVENT_LOG_ADDRESS!, SALES_LOG_ABI, wallet);
+                
+        const bytes32Id = ethers.isHexString(merchantId) 
+          ? ethers.zeroPadValue(merchantId, 32) 
+          : ethers.id(merchantId);
       
-      const bytes32Id = ethers.zeroPadValue(merchantId, 32);
-    
-      const amountWei = ethers.parseUnits(amount.toString(), 18);
-      
-      const tx = await contract.recordSalesBatch(
-        bytes32Id,
-        amountWei,
-        paymentMethod === 'Efectivo' ? amountWei : 0,
-        paymentMethod !== 'Efectivo' ? amountWei : 0,
-        1
-      );
+        const amountWei = ethers.parseUnits(amount.toString(), 18);
+                
+        const nonce = await provider.getTransactionCount(wallet.address, 'pending');
 
-      console.log(`✅ Sincronizado en Mantle. Hash: ${tx.hash}`);
-    } catch (blockchainError) {
-      console.error("❌ Falló el anclaje a Mantle:", blockchainError);      
-    }
+        const tx = await contract.recordSalesBatch(
+          bytes32Id,
+          amountWei,
+          paymentMethod === 'Efectivo' ? amountWei : 0,
+          paymentMethod !== 'Efectivo' ? amountWei : 0,
+          1,
+          { nonce } 
+        );
 
+        console.log(`✅ Sincronizado en Mantle. Hash: ${tx.hash}`);        
+      } catch (blockchainError) {
+        console.error("❌ Falló el anclaje a Mantle:", blockchainError);
+      }
+    })(); // Función autoejecutable
+
+    // Devolvemos respuesta inmediata al frontend
     return NextResponse.json({ success: true, sale: newSale }, { headers: corsHeaders });
+    
   } catch (error: any) {
     console.error("Error General:", error);
     return NextResponse.json({ error: error.message }, { status: 500, headers: corsHeaders });
