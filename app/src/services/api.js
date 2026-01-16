@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { getBlockchainProvider, verifyMerchantOnChain } from '../lib/blockchain'; // Ajusta la ruta según tu carpeta
+import { getBlockchainProvider, verifyMerchantOnChain, getOnChainMerchant } from '../lib/blockchain';
 
 const API_URL = "https://barrio-ledger-dashboard.vercel.app/api";
 
