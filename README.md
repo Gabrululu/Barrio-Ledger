@@ -7,25 +7,25 @@
 
 ---
 
-## 📋 Descripción
+## 📋 Description
 
-**Barrio Ledger** es una plataforma fintech descentralizada que transforma las ventas diarias de pequeños comercios (bodegas, tiendas de barrio) en un historial crediticio verificable e inmutable usando la blockchain de **Mantle L2**.
+**Barrio Ledger** is a decentralized fintech platform that transforms the daily sales of small businesses (grocery stores, neighborhood shops) into a verifiable and immutable credit history using the **Mantle L2** blockchain.
 
-El objetivo es **incluir financieramente** a negocios no bancarizados, permitiéndoles acceder a créditos justos basados en su comportamiento real de ventas, eliminando intermediarios costosos y reduciendo el riesgo de fraude.
+The goal is to **financially include** unbanked businesses, allowing them to access fair credit based on their actual sales behavior, eliminating costly intermediaries and reducing the risk of fraud.
 
-### 🎯 Propuesta de Valor
+### 🎯 Value proposition
 
-| Stakeholder | Beneficio |
+| Stakeholder | Benefit |
 |-------------|-----------|
-| 🛒 **Bodeguero** | Herramienta sencilla para registrar ventas y construir un score financiero digital verificable |
-| 🏦 **Fintech/Banco** | Acceso a datos de ventas certificados on-chain, reduciendo riesgo de fraude y costos de adquisición |
-| ⛓️ **Blockchain** | Caso de uso real en L2 (Mantle) demostrando escalabilidad y eficiencia de costos |
+| 🛒 **Salesperson** | Simple tool for recording sales and building a verifiable digital financial score |
+| 🏦 **Fintech/Bank** | Access to certified on-chain sales data, reducing fraud risk and acquisition costs |
+| ⛓️ **Blockchain** | Real-world use case in L2 (Mantle) demonstrating scalability and cost efficiency |
 
 ---
 
-## 🏗️ Arquitectura del Sistema
+## 🏗️ System Architecture
 
-Score de Barrio se compone de **4 capas independientes pero integradas**:
+Barrio Ledger consists of **four independent but integrated layers**::
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -49,153 +49,153 @@ Score de Barrio se compone de **4 capas independientes pero integradas**:
 └─────────────────────────────────────────────────────────┘
 ```
 
-### 📍 Componentes Detallados
+### 📍 Detailed Components
 
 #### 1. **Smart Contracts** (`/score-de-barrio`)
-Solidity contracts en **Mantle Sepolia** que actúan como fuente de verdad inmutable.
+Solidity contracts on **Mantle Sepolia** that act as an immutable source of truth.
 
 ```solidity
 // MerchantRegistry.sol
-- Registro de comercios únicos
-- Administración de claves públicas
-- Historial de actividad on-chain
+- Single merchant registry
+- Public key management
+- On-chain activity history
 
 // SalesEventLog.sol
-- Almacenamiento de agregaciones de ventas (buckets)
-- Verificación de firmas del Relayer
-- Eventos inmutables de transacciones
+- Sales aggregation storage (buckets)
+- Relayer signature verification
+- Immutable transaction events
 ```
 
 **Direcciones Desplegadas:**
 - `MerchantRegistry`: `0x2bd8AbEB2F5598f8477560C70c742aFfc22912de`
 - `SalesEventLog`: `0x7007508b1420e719D7a7A69B98765F60c7Aae759`
-- **Red:** Mantle Sepolia (Chain ID: 5003)
+- **Network:** Mantle Sepolia (Chain ID: 5003)
 
 #### 2. **Backend Relayer** (`/backend`)
-Motor central que procesa ventas, calcula scores y sincroniza con blockchain.
+Central engine that processes sales, calculates scores, and synchronizes with blockchain.
 
-**Características:**
-- ✅ **API REST** para registro de bodegas y ventas
-- ✅ **Scoring Engine**: Algoritmo dinámico de puntuación
-- ✅ **Automated Relayer**: Agrega ventas en buckets de 15 min y las firma
-- ✅ **Cache SQLite**: Almacenamiento local para sincronización
-- ✅ **PostgreSQL**: Persistencia de scores y estadísticas
+**Features:**
+- ✅ **REST API** for warehouse and sales registration
+- ✅ **Scoring Engine**: Dynamic scoring algorithm
+- ✅ **Automated Relayer**: Aggregates sales in 15-minute buckets and signs them
+- ✅ **SQLite Cache**: Local storage for synchronization
+- ✅ **PostgreSQL**: Persistence of scores and statistics
 
-**Endpoints Principales:**
+**Main Endpoints:**
 ```
-POST   /api/merchants              # Registrar nueva bodega
-POST   /api/sales                  # Registrar venta (requiere API Key)
-GET    /api/stats/:merchantId      # Consultar score y métricas
-GET    /api/merchants              # Listar bodegas registradas
-GET    /api/sales/:merchantId      # Historial de ventas
+POST   /api/merchants              # Register new store
+POST   /api/sales                  # Register sale (requires API Key)
+GET    /api/stats/:merchantId      # Check score and metrics
+GET    /api/merchants              # List registered stores
+GET    /api/sales/:merchantId      # Sales history
 ```
 
 #### 3. **App PWA** (`/app`)
-Aplicación ultra-ligera para punto de venta optimizada para conexiones lentas.
+Ultra-lightweight point-of-sale application optimized for slow connections.
 
-**Características:**
-- 📱 Funciona como app nativa (PWA)
-- 🔴 Soporte offline completo
-- ⚡ Registro de venta en 2-3 taps
-- 💾 Sincronización automática cuando hay conexión
-- 🎨 Diseño responsive mobile-first
+**Features:**
+- 📱 Works as a native app (PWA)
+- 🔴 Full offline support
+- ⚡ Sales registration in 2-3 taps
+- 💾 Automatic synchronization when connected
+- 🎨 Mobile-first responsive design
 
 #### 4. **Dashboard B2B** (`/dashboard`)
-Panel administrativo para instituciones financieras e instituciones de crédito.
+Administrative panel for financial institutions and credit institutions.
 
-**Características:**
-- 📊 Visualización de scores por comercio
-- 🗺️ Mapa interactivo de riesgo por distrito
-- 📈 Analytics avanzados y tendencias
-- ⛓️ Verificación directa contra blockchain
-- 🔐 Autenticación segura
+**Features:**
+- 📊 View scores by business
+- 🗺️ Interactive risk map by district
+- 📈 Advanced analytics and trends
+- ⛓️ Direct verification against blockchain
+- 🔐 Secure authentication
 
 ---
 
-## 🛠️ Stack Tecnológico
+## 🛠️ Technology Stack
 
-| Capa | Tecnología | Propósito |
+| Layer | Technology | Purpose |
 |------|-----------|----------|
-| **Blockchain** | Mantle Network (L2), Solidity 0.8.19 | Inmutabilidad y seguridad |
-| **Smart Contracts** | Foundry, OpenZeppelin Contracts | Testing y desarrollo |
-| **Backend** | Node.js 18+, Express.js | API y lógica de negocio |
-| **Base de Datos Local** | SQLite | Cache y sincronización |
-| **Base de Datos Persistente** | PostgreSQL + Prisma | Scores y estadísticas |
-| **Frontend App** | React 18, Vite, Tailwind CSS | PWA ligera |
-| **Frontend Dashboard** | Next.js 14, TypeScript | Admin panel moderno |
-| **Monitoreo** | PM2 | Gestión de procesos |
-| **DevOps** | GitHub Codespaces, Docker | Desarrollo y despliegue |
+| **Blockchain** | Mantle Network (L2), Solidity 0.8.19 | Immutability and security |
+| **Smart Contracts** | Foundry, OpenZeppelin Contracts | Testing and development |
+| **Backend** | Node.js 18+, Express.js | API and business logic |
+| **Local Database** | SQLite | Cache and synchronization |
+| **Persistent Database** | PostgreSQL + Prisma | Scores and statistics |
+| **Frontend App** | React 18, Vite, Tailwind CSS | Lightweight PWA |
+| **Frontend Dashboard** | Next.js 14, TypeScript | Modern admin panel |
+| **Monitoring** | PM2 | Process management |
+| **DevOps** | GitHub Codespaces, Docker | Development and deployment |
 
 ---
 
-## 📊 Algoritmo de Scoring
+## 📊 Scoring Algorithm
 
-El **Score de Barrio** (0-100) se calcula dinámicamente basado en:
+The **Score de Barrio** (0-100) is calculated dynamically based on:
 
 ```
-SCORE FINAL = (40% VOLUMEN) + (30% CONSISTENCIA) + (30% DIGITALIZACIÓN)
+FINAL SCORE = (40% VOLUME) + (30% CONSISTENCY) + (30% DIGITIZATION)
 ```
 
-### Desglose:
+### Breakdown:
 
-| Factor | Peso | Cálculo |
+| Factor | Weight | Calculation |
 |--------|------|---------|
-| 📊 **Volumen** | 40% | Monto total de ventas normalizadas |
-| 📅 **Consistencia** | 30% | Días seguidos de actividad registrada |
-| 💳 **Digitalización** | 30% | % de ventas con métodos digitales |
+| 📊 **Volume** | 40% | Total amount of normalized sales |
+| 📅 **Consistency** | 30% | Consecutive days of registered activity |
+| 💳 **Digitization** | 30% | % of sales using digital methods |
 
-**Ejemplo:**
-- Bodeguero con 5,000 soles en ventas mensuales
-- 20 días de actividad consecutiva
-- 60% de ventas digitales
-- **Score Resultante:** 78/100 ✅
+**Example:**
+- Salesperson with 5,000 soles in monthly sales
+- 20 consecutive days of activity
+- 60% digital sales
+- **Resulting Score:** 78/100 ✅
 
 ---
 
-## 🚀 Instalación y Configuración
+## 🚀 Installation and Configuration
 
-### Requisitos Previos
+### Prerequisites
 
 ```bash
-# Verificar versiones
-node --version  # v18 o superior
-npm --version   # v8 o superior
+# Check versions
+node --version  # v18 or higher
+npm --version   # v8 or higher
 ```
 
-- Billetera MetaMask o compatible con Mantle Sepolia
-- Fondos en Mantle Sepolia para el Relayer (0.5 MNT mínimo)
-- PostgreSQL corriendo localmente
+- MetaMask wallet or Mantle Sepolia compatible wallet
+- Funds in Mantle Sepolia for the Relayer (0.5 MNT minimum)
+- PostgreSQL running locally
 
-### 1️⃣ Configurar Backend
+### 1️⃣ Configure Backend
 
 ```bash
 cd backend
 npm install
 
-# Copiar y configurar variables de entorno
+# Copy and configure environment variables
 cp .env.example .env
 
-# Editar .env con:
-# - RELAYER_PRIVATE_KEY (billetera del Relayer)
-# - DATABASE_URL (conexión PostgreSQL)
+# Edit .env with:
+# - RELAYER_PRIVATE_KEY (Relayer wallet)
+# - DATABASE_URL (PostgreSQL connection)
 # - MANTLE_RPC_URL
 
-# Inicializar base de datos
+# Initialize database
 npx prisma generate
 npx prisma db push
 
-# Iniciar servidor
+# Start server
 npm run dev
-# ✅ Backend corriendo en http://localhost:3000
+# ✅ Backend running at http://localhost:3000
 ```
 
-### 2️⃣ Lanzar App PWA
+### 2️⃣ Launch PWA App
 
 ```bash
 cd app
 npm install
 npm run dev
-# ✅ App disponible en http://localhost:5173
+# ✅ App available at http://localhost:5173
 ```
 
 ### 3️⃣ Iniciar Dashboard B2B
@@ -208,17 +208,27 @@ npm run dev
 # ✅ Dashboard disponible en http://localhost:3001
 ```
 
-### 4️⃣ Desplegar Smart Contracts (Opcional)
+### 3️⃣ Start Dashboard B2B
+
+```bash
+cd dashboard
+npm install
+npx prisma generate
+npm run dev
+# ✅ Dashboard available at http://localhost:3001
+```
+
+### 4️⃣ Deploy Smart Contracts (Optional)
 
 ```bash
 cd score-de-barrio
-# Instalar Foundry si no lo tienes: curl -L https://foundry.paradigm.xyz | bash
+# Install Foundry if you don't have it: curl -L https://foundry.paradigm.xyz | bash
 source $HOME/.bashrc
 
-# Compilar contratos
+# Compile contracts
 forge build
 
-# Desplegar a Mantle Sepolia
+# Deploy to Mantle Sepolia
 forge script script/Deploy.s.sol \
   --rpc-url https://rpc.sepolia.mantle.xyz \
   --private-key <YOUR_PRIVATE_KEY> \
@@ -227,69 +237,69 @@ forge script script/Deploy.s.sol \
 
 ---
 
-## 📝 Casos de Uso
+## 📝 Use Cases
 
-### Caso 1: Bodeguero Registra Ventas Diarias
-1. Abre la app Score de Barrio
-2. Toca "Registrar Venta"
-3. Selecciona Efectivo/Digital
-4. Ingresa monto (50, 100, 200 soles)
-5. ✅ Venta sincronizada (offline si es necesario)
-6. Su score se actualiza en tiempo real
+### Case 1: Merchant Records Daily Sales
+1. Open the Score de Barrio app
+2. Tap “Record Sale”
+3. Select Cash/Digital
+4. Enter amount (50, 100, 200 soles)
+5. ✅ Sale synchronized (offline if necessary)
+6. Your score is updated in real time
 
-### Caso 2: Banco Consulta Riesgo Crediticio
-1. Accede al Dashboard como institución financiera
-2. Busca bodega por ubicación o nombre
-3. Visualiza score, tendencias, historial
-4. **Verifica on-chain** que los datos son auténticos
-5. Toma decisión de crédito basada en datos reales
+### Case 2: Bank Checks Credit Risk
+1. Access the Dashboard as a financial institution
+2. Search for a store by location or name
+3. View score, trends, history
+4. **Verify on-chain** that the data is authentic
+5. Make credit decisions based on real data
 
-### Caso 3: Análisis Regional de Riesgo
-1. Gerente de riesgos abre Dashboard
-2. Activa filtro por distrito (ej: "Miraflores")
-3. Visualiza mapa de calor con scores
-4. Identifica oportunidades de cartera de crédito
-5. Exporta reportes analíticos
+### Case 3: Regional Risk Analysis
+1. Risk manager opens Dashboard
+2. Activates filter by district (e.g., “Miraflores”)
+3. View heat map with scores
+4. Identify credit portfolio opportunities
+5. Export analytical reports
 
 ---
 
-## 🔐 Seguridad
+## 🔐 Security
 
-### Medidas Implementadas
+### Measures Implemented
 
-✅ **Firmas Criptográficas**: Relayer firma agregaciones con clave privada  
-✅ **On-chain Verification**: Todos los datos verificables contra blockchain  
-✅ **Rate Limiting**: 100 requests/minuto por API Key  
-✅ **HTTPS Obligatorio**: En producción, todas las conexiones encriptadas  
-✅ **Auditoría de Transacciones**: Logs inmutables en blockchain  
+✅ **Cryptographic Signatures**: Relayer signs aggregations with private key  
+✅ **On-chain Verification**: All data verifiable against blockchain  
+✅ **Rate Limiting**: 100 requests/minute per API Key  
+✅ **HTTPS Mandatory**: In production, all connections encrypted  
+✅ **Transaction Auditing**: Immutable logs on blockchain  
 
 ---
 
 ## 📈 Roadmap
 
-### ✅ Fase 1 (Completada)
-- [x] Smart Contracts en Mantle Sepolia
-- [x] Backend API con Scoring Engine
-- [x] App PWA funcional
-- [x] Dashboard B2B básico
-- [x] Sincronización On-chain automática
+### ✅ Phase 1 (Completed)
+- [x] Smart Contracts on Mantle Sepolia
+- [x] Backend API with Scoring Engine
+- [x] Functional PWA App
+- [x] Basic B2B Dashboard
+- [x] Automatic On-chain Synchronization
 
-### 🔄 Fase 2 (En Desarrollo)
-- [ ] Integración con pasarelas de pago QR
-- [ ] Scoring ML basado en patrones históricos
-- [ ] Multi-chain (expandir a otras L2s)
+### 🔄 Phase 2 (In Development)
+- [ ] Integration with QR payment gateways
+- [ ] ML scoring based on historical patterns
+- [ ] Multi-chain (expand to other L2s)
 
-### 🎯 Fase 3 (Roadmap)
-- [ ] DeFi Lending Pool: Préstamos automáticos via Smart Contracts
-- [ ] Marketplace de datos: Venta de insights agregados
-- [ ] Tokenización: MNT rewards por buen comportamiento crediticio
-- [ ] Integración bancaria nativa
+### 🎯 Phase 3 (Roadmap)
+- [ ] DeFi Lending Pool: Automatic loans via Smart Contracts
+- [ ] Data Marketplace: Sale of aggregated insights
+- [ ] Tokenization: MNT rewards for good credit behavior
+- [ ] Native banking integration
 
 ---
 
-## 📱 URLs de Despliegue
+## 📱 Deployment URLs
 
-| Componente | URL |
+| Component | URL |
 |-----------|-----|
 | **App PWA** | https://barrio-ledger-app.vercel.app/ |
 | **Dashboard** | https://barrio-ledger-dashboard.vercel.app/ |
@@ -298,20 +308,20 @@ forge script script/Deploy.s.sol \
 
 ---
 
-## 📧 Contacto y Soporte
+## 📧 Contact and Support
 
 - **GitHub**: [@Gabrululu](https://github.com/Gabrululu)
-- **Issues**: [Reporta bugs aquí](https://github.com/Gabrululu/Barrio-Ledger/issues)
-- **Documentación**: [Ver Wiki](https://github.com/Gabrululu/Barrio-Ledger/wiki)
+- **Issues**: [Report bugs here](https://github.com/Gabrululu/Barrio-Ledger/issues)
+- **Documentation**: [Ver Wiki](https://github.com/Gabrululu/Barrio-Ledger/wiki)
 
 ---
 
-## 📄 Licencia
+## 📄 License
 
-Este proyecto está licenciado bajo la **MIT License** - ver el archivo [LICENSE](LICENSE) para detalles.
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-**Desarrollado para el Mantle Global Hackathon** 🚀
+**Developed for the Mantle Global Hackathon** 🚀
 
-*Transformando bodegas en activos financieros verificables*
+*Transforming warehouses into verifiable financial assets*

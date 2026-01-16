@@ -17,30 +17,17 @@ export async function verifyMerchantOnChain(merchantId) {
   const contract = new ethers.Contract(SALES_LOG_ADDRESS, ABI, provider);
   
   try {        
-    const formattedId = ethers.isHexString(merchantId) 
-      ? ethers.zeroPadValue(merchantId, 32) 
-      : ethers.id(merchantId);
+    const formattedId = ethers.id(merchantId); 
 
     const stats = await contract.getSalesStats(formattedId);
     
     return {
       totalOnChain: ethers.formatUnits(stats.totalAmount, 18),
-      txCount: stats.txCount.toString(),      
+      txCount: stats.txCount.toString(),
       isVerified: Number(stats.txCount) > 0 
     };
   } catch (error) {
-    console.error("Error verificando on-chain:", error);
+    console.error("Error en lectura Mantle:", error);
     return { isVerified: false, totalOnChain: "0", txCount: "0" };
   }
-}
-
-export async function getOnChainMerchant(id) {
-    const provider = getBlockchainProvider();
-    const REGISTRY_ADDRESS = "0x2bd8AbEB2F5598f8477560C70c742aFfc22912de";
-    const contract = new ethers.Contract(REGISTRY_ADDRESS, ABI, provider);
-    try {
-        return await contract.getMerchant(id);
-    } catch (error) {
-        return { exists: false };
-    }
 }

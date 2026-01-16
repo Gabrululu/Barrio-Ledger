@@ -1,44 +1,43 @@
 # 🏗️ Barrio Ledger - Backend API
 
-Backend/Relayer para Barrio Ledger. Agrega ventas de comercios y las sincroniza con smart contracts en Mantle Sepolia.
+Backend/Relayer for Barrio Ledger. Adds merchant sales and synchronizes them with smart contracts on Mantle Sepolia.
 
 ---
 
 ## 🚀 Quick Start
 
-### 1. Instalación
+### 1. Installation
 
 ```bash
-# Clonar el proyecto
+# Clone the project
 git clone <repo-url>
-cd score-de-barrio-backend
+cd backend
 
-# Instalar dependencias
+# Install dependencies
 npm install
 
-# Configurar environment
+# Configure environment
 cp .env.example .env
-nano .env  # Editar con tus valores
+nano .env  # Edit with your values
 ```
+### 2. Configuration
 
-### 2. Configuración
+Edit `.env` with:
+- `RELAYER_PRIVATE_KEY`: Your private key (requires funds in Mantle Sepolia)
+- `MERCHANT_REGISTRY`: MerchantRegistry contract address
+- `SALES_EVENT_LOG`: SalesEventLog contract address
 
-Edita `.env` con:
-- `RELAYER_PRIVATE_KEY`: Tu private key (necesita fondos en Mantle Sepolia)
-- `MERCHANT_REGISTRY`: Address del contrato MerchantRegistry
-- `SALES_EVENT_LOG`: Address del contrato SalesEventLog
-
-### 3. Iniciar Servidor
+### 3. Start Server
 
 ```bash
-# Desarrollo (con auto-reload)
+# Development (with auto-reload)
 npm run dev
 
-# Producción
+# Production
 npm start
 ```
 
-El servidor estará en `http://localhost:3000`
+The server will be at `http://localhost:3000`
 
 ---
 
@@ -50,42 +49,42 @@ GET /health
 
 Response:
 {
-  "status": "ok",
-  "blockchain": {
-    "ready": true,
-    "balance": "0.5",
-    "blockNumber": 33367800
+  “status”: “ok”,
+  “blockchain”: {
+    “ready”: true,
+    “balance”: “0.5”,
+    “blockNumber”: 33367800
   }
 }
 ```
 
-### Registrar Comercio
+### Register Merchant
 ```bash
 POST /api/merchants
 Content-Type: application/json
 
 {
-  "phone": "+51987654321",
-  "businessName": "Bodega Don Pepe",
-  "location": "Miraflores, Lima"
+  “phone”: “+51987654321”,
+  “businessName”: “Bodega Don Pepe”,
+  “location”: “Miraflores, Lima”
 }
 
 Response:
 {
-  "success": true,
-  "merchant": {
-    "id": "uuid-...",
-    "merchantId": "0x265...",
-    "apiKey": "sk_abc123..."  # ⚠️ Guardar, no se muestra de nuevo
+  “success”: true,
+  “merchant”: {
+    “id”: “uuid-...”,
+    “merchantId”: “0x265...”,
+    “apiKey”: “sk_abc123...”  # ⚠️ Save, not displayed again
   },
-  "blockchain": {
-    "status": "submitted",
-    "txHash": "0x467..."
+  “blockchain”: {
+    “status”: “submitted”,
+    “txHash”: “0x467...”
   }
 }
 ```
 
-### Registrar Venta
+### Register Sale
 ```bash
 POST /api/sales
 Content-Type: application/json
@@ -93,8 +92,8 @@ X-API-Key: sk_abc123...
 
 {
   "amount": 25.50,
-  "paymentMethod": "cash",  # o "digital"
-  "timestamp": 1768279853   # opcional
+  "paymentMethod": "cash",  # or "digital"
+  "timestamp": 1768279853   # optional
 }
 
 Response:
@@ -112,7 +111,7 @@ Response:
 }
 ```
 
-### Registrar Ventas en Lote
+### Record Sales in Batch
 ```bash
 POST /api/sales/batch
 Content-Type: application/json
@@ -134,7 +133,7 @@ Response:
 }
 ```
 
-### Ver Ventas de un Comercio
+### View Sales for a Business
 ```bash
 GET /api/sales/merchant/0x265...?limit=50&offset=0
 
@@ -160,66 +159,66 @@ Response:
 
 ---
 
-## 🔄 Sincronización con Blockchain
+## 🔄 Synchronization with Blockchain
 
-### Manual (para testing)
+### Manual (for testing)
 ```bash
 npm run sync
 ```
 
-### Automática (producción)
+### Automatic (production)
 
-Opción 1: Cron del sistema
+Option 1: System cron
 ```bash
-# Editar crontab
+# Edit crontab
 crontab -e
 
-# Agregar línea (cada 15 minutos)
+# Add line (every 15 minutes)
 */15 * * * * cd /path/to/backend && npm run sync >> /var/log/sync.log 2>&1
 ```
 
-Opción 2: PM2 con cron
+Option 2: PM2 with cron
 ```bash
 npm install -g pm2
 
 # Start server
 pm2 start src/server.js --name "score-api"
 
-# Start sync job (cada 15 min)
+# Start sync job (each 15 min)
 pm2 start src/jobs/syncBuckets.js --name "score-sync" --cron "*/15 * * * *" --no-autorestart
 ```
 
 ---
 
-## 🗄️ Base de Datos
+## 🗄️ Database
 
-El backend usa **SQLite** por simplicidad. Los datos se guardan en `./data/scoredebarrio.db`
+The backend uses **SQLite** for simplicity. Data is stored in `./data/scoredebarrio.db`
 
-### Tablas:
+### Tables:
 
-**merchants**: Comercios registrados
-- `merchant_id`: ID on-chain (bytes32)
-- `api_key`: Para autenticación
-- `business_name`, `location`: Info del negocio
+**merchants**: Registered merchants
+- `merchant_id`: On-chain ID (bytes32)
+- `api_key`: For authentication
+- `business_name`, `location`: Business information
 
-**sales**: Ventas registradas
-- `merchant_id`: Comercio que hizo la venta
-- `amount_cents`: Monto en centavos
-- `payment_method`: "cash" o "digital"
-- `bucket`: Bucket de tiempo (para agregar)
-- `synced`: Si ya se envió al blockchain
+**sales**: Registered sales
+- `merchant_id`: Business that made the sale
+- `amount_cents`: Amount in cents
+- `payment_method`: “cash” or “digital”
+- `bucket`: Time bucket (to add)
+- `synced`: If already sent to the blockchain
 
-**sync_status**: Estado de sincronización
-- `merchant_id`, `bucket`: Identificador único
-- `tx_hash`: Hash de la transacción
+**sync_status**: Synchronization status
+- `merchant_id`, `bucket`: Unique identifier
+- `tx_hash`: Transaction hash
 - `status`: pending/submitted/confirmed/failed
 
 ### Backup
 ```bash
-# Backup manual
+# Manual Backup
 cp ./data/scoredebarrio.db ./backups/backup-$(date +%Y%m%d).db
 
-# Backup automático (cron diario)
+#Automatic backup (daily cron)
 0 2 * * * cp /path/to/data/scoredebarrio.db /path/to/backups/backup-$(date +\%Y\%m\%d).db
 ```
 
@@ -227,7 +226,7 @@ cp ./data/scoredebarrio.db ./backups/backup-$(date +%Y%m%d).db
 
 ## 🧪 Testing
 
-### Registrar comercio de prueba
+### Register test trade
 ```bash
 curl -X POST http://localhost:3000/api/merchants \
   -H "Content-Type: application/json" \
@@ -237,24 +236,24 @@ curl -X POST http://localhost:3000/api/merchants \
     "location": "Lima Centro"
   }'
 
-# Guardar el merchantId y apiKey del response
+# Save the merchantId and apiKey from the response
 ```
 
-### Registrar ventas
+### Record sales
 ```bash
-# Usar el apiKey del paso anterior
+# Use the apiKey from the previous step
 curl -X POST http://localhost:3000/api/sales \
   -H "Content-Type: application/json" \
-  -H "X-API-Key: sk_tu_api_key_aqui" \
+  -H "X-API-Key: sk_tu_api_key_here" \
   -d '{
     "amount": 50.00,
     "paymentMethod": "cash"
   }'
 ```
 
-### Ver estado de sincronización
+### View synchronization status
 ```bash
-# Revisar DB directamente
+# Check DB directly
 sqlite3 ./data/scoredebarrio.db
 
 sqlite> SELECT * FROM sync_status ORDER BY created_at DESC LIMIT 5;
@@ -262,121 +261,121 @@ sqlite> SELECT * FROM sync_status ORDER BY created_at DESC LIMIT 5;
 
 ---
 
-## 📊 Monitoreo
+## 📊 Monitoring
 
 ### Logs
 ```bash
-# Desarrollo
-npm run dev  # Logs en consola
+# Development
+npm run dev  # Console logs
 
-# Producción con PM2
+# Production with PM2
 pm2 logs score-api
 pm2 logs score-sync
 ```
 
-### Métricas importantes
+### Important metrics
 - Sales registered per minute
 - Sync success rate
-- Relayer balance (debe tener fondos)
+- Relayer balance (must have funds)
 - Failed transactions
 
 ---
 
-## 🔒 Seguridad
+## 🔒 Security
 
 ### API Keys
-- Cada comercio tiene un API key único
-- Se genera automáticamente en el registro
-- **Solo se muestra una vez** - el comercio debe guardarlo
+- Each merchant has a unique API key
+- It is automatically generated upon registration
+- **It is only displayed once** - the merchant must save it
 
 ### Rate Limiting
-- 100 requests por minuto por IP
-- Configurable en `.env`
+- 100 requests per minute per IP
+- Configurable in `.env`
 
-### Validaciones
+### Validations
 - Amounts > 0
-- Timestamps válidos
-- merchantId existe y está activo
+- Valid timestamps
+- merchantId exists and is active
 
 ---
 
 ## 🐛 Troubleshooting
 
 ### "Blockchain not ready"
-- Verifica que `RELAYER_PRIVATE_KEY` esté en `.env`
-- Verifica que los contract addresses sean correctos
-- Verifica que el RPC URL funcione
+- Verify that `RELAYER_PRIVATE_KEY` is in `.env`
+- Verify that the contract addresses are correct
+- Verify that the RPC URL works
 
 ### "Insufficient funds"
 ```bash
 # Check balance
 cast balance TU_RELAYER_ADDRESS --rpc-url https://rpc.sepolia.mantle.xyz
 
-# Si es 0, conseguir fondos en:
+# If it is 0, obtain funds at:
 https://faucet.sepolia.mantle.xyz
 ```
 
 ### Sync job falla
 ```bash
-# Ver logs detallados
+# View detailed logs
 npm run sync
 
-# Verificar gas price
+# Check gas price
 cast gas-price --rpc-url https://rpc.sepolia.mantle.xyz
 ```
 
 ### Database locked
 ```bash
-# Si SQLite se bloquea, reiniciar server
+# If SQLite crashes, restart server
 pm2 restart score-api
 
-# O revisar procesos usando la DB
+# Or review processes using the DB
 lsof ./data/scoredebarrio.db
 ```
 
 ---
 
-## 📈 Escalabilidad
+## 📈 Scalability
 
-### Para 100-1000 comercios
-- SQLite es suficiente
+### For 100-1000 merchants
+- SQLite is sufficient
 - 1 worker node
 
-### Para 1000-10000 comercios
-- Migrar a PostgreSQL
-- Múltiples workers con queue (Bull + Redis)
+### For 1000-10000 merchants
+- Migrate to PostgreSQL
+- Multiple workers with queue (Bull + Redis)
 - Load balancer
 
-### Para 10000+ comercios
-- PostgreSQL con replicación
-- Microservicios (API separado de Relayer)
-- Kubernetes para auto-scaling
+### For 10,000+ merchants
+- PostgreSQL with replication
+- Microservices (API separate from Relayer)
+- Kubernetes for auto-scaling
 
 ---
 
 ## 🎯 Roadmap
 
-**v1.0 (Actual)**
-- ✅ API REST básica
-- ✅ Registro de comercios
-- ✅ Registro de ventas
-- ✅ Sync manual a blockchain
+**v1.0 (Current)**
+- ✅ Basic REST API
+- ✅ Merchant registration
+- ✅ Sales registration
+- ✅ Manual sync to blockchain
 
-**v1.1 (Próximo)**
+**v1.1 (Coming soon)**
 - [ ] Score calculation
-- [ ] Dashboard B2B API
-- [ ] Webhooks para eventos
-- [ ] Stats endpoint mejorado
+- [ ] B2B API dashboard
+- [ ] Webhooks for events
+- [ ] Improved stats endpoint
 
-**v2.0 (Futuro)**
+**v2.0 (Future)**
 - [ ] GraphQL API
-- [ ] Real-time con WebSockets
-- [ ] Analytics avanzados
+- [ ] Real-time with WebSockets
+- [ ] Advanced analytics
 - [ ] Multi-chain support
 
 ---
 
-## 📚 Documentación Adicional
+## 📚 Additional Documentation
 
 - [Mantle Docs](https://docs.mantle.xyz)
 - [Smart Contracts](../score-de-barrio/README.md)
@@ -384,16 +383,16 @@ lsof ./data/scoredebarrio.db
 
 ---
 
-## 🤝 Contribuir
+## 🤝 Contribute
 
 ```bash
-# Fork del repo
-git checkout -b feature/nueva-funcionalidad
-git commit -m "Descripción del cambio"
-git push origin feature/nueva-funcionalidad
-# Crear Pull Request
+# Fork the repo
+git checkout -b feature/new-functionality
+git commit -m “Description of the change”
+git push origin feature/new-functionality
+# Create Pull Request
 ```
 
 ---
 
-**¿Problemas?** Abre un issue en GitHub o contacta al equipo.
+**Problems?** Open an issue on GitHub or contact the team.

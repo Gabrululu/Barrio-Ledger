@@ -1,153 +1,152 @@
 # 📱 Barrio Ledger - PWA
 
-Progressive Web App para que los bodegueros registren ventas fácilmente.
-
+Progressive Web App for store owners to easily record sales.
 ---
 
 ## 🚀 Quick Start
 
-### 1. Instalación
+### 1. Installation
 
 ```bash
-# Clonar proyecto
-cd score-de-barrio-app
+# Clone project
+cd neighborhood-score-app
 
-# Instalar dependencias
+# Install dependencies
 npm install
 ```
 
-### 2. Configuración
+### 2. Configuration
 
-Crear `.env`:
+Create `.env`:
 
 ```bash
 VITE_API_URL=http://localhost:3000/api
 ```
 
-Para producción:
+For production:
 ```bash
 VITE_API_URL=https://api.scoredebarrio.com/api
 ```
 
-### 3. Desarrollo
+### 3. Development
 
 ```bash
-# Iniciar servidor de desarrollo
+# Start development server
 npm run dev
 
-# Abrir en navegador
+# Open in browser
 # http://localhost:3001
 ```
 
-### 4. Build para Producción
+### 4. Build for Production
 
 ```bash
-# Build optimizado
+# Optimized build
 npm run build
 
-# Preview del build
+# Preview of the build
 npm run preview
 ```
 
 ---
 
-## 📂 Estructura del Proyecto
+## 📂 Project Structure
 
 ```
 src/
 ├── components/
-│   ├── RegisterForm.jsx    # Registro inicial
-│   ├── Dashboard.jsx       # Pantalla principal
-│   ├── SaleForm.jsx        # Formulario de venta
-│   └── SalesList.jsx       # Historial de ventas
+│   ├── RegisterForm.jsx    # Initial registration
+│   ├── Dashboard.jsx       # Main screen
+│   ├── SaleForm.jsx        # Sales form
+│   └── SalesList.jsx       # Sales history
 ├── services/
-│   ├── api.js              # API calls al backend
+│   ├── api.js              # API calls to the backend
 │   └── storage.js          # localStorage manager
-├── App.jsx                 # Componente raíz
+├── App.jsx                 # Root component
 ├── main.jsx                # Entry point
 └── index.css               # Tailwind + custom styles
 ```
 
 ---
 
-## 🎯 Funcionalidades
+## 🎯 Features
 
-### ✅ Implementadas
+### ✅ Implemented
 
-**Registro de Comercio**
-- Input de teléfono, nombre y ubicación
-- Validación de campos
-- Guardado automático de API key
+**Business Registration**
+- Phone number, name, and location input
+- Field validation
+- Automatic API key saving
 
-**Dashboard Principal**
-- Total de ventas del día
+**Main Dashboard**
+- Total sales for the day
 - Score placeholder (78)
-- Últimas 20 ventas
+- Last 20 sales
 
-**Registro de Ventas**
-- Botones grandes Efectivo/Digital
-- Input de monto con teclado numérico
-- Botones rápidos (S/ 5, 10, 20, 50)
-- Feedback visual de éxito
+**Sales Register**
+- Large Cash/Digital buttons
+- Amount input with numeric keypad
+- Quick buttons (S/ 5, 10, 20, 50)
+- Visual success feedback
 
-**Historial**
-- Lista de últimas ventas
-- Iconos por método de pago
-- Tiempo relativo (hace X min)
-- Estado de sincronización
+**History**
+- List of latest sales
+- Icons by payment method
+- Relative time (X min ago)
+- Synchronization status
 
 **PWA**
-- Instalable en home screen
-- Funciona offline (próximamente)
-- Service worker para cache
+- Installable on home screen
+- Works offline (coming soon)
+- Service worker for cache
 
 ---
 
-## 🎨 Diseño
+## 🎨 Design
 
 ### Mobile-First
-Diseñado específicamente para teléfonos móviles de los bodegueros.
+Designed specifically for winemakers' mobile phones.
 
-### Botones Grandes
-Todos los botones tienen mínimo 44x44px para fácil toque.
+### Large Buttons
+All buttons are at least 44x44px for easy tapping.
 
-### Colores
-- **Verde (#10b981)**: Primary, éxito
-- **Naranja (#f59e0b)**: Efectivo
-- **Azul (#3b82f6)**: Digital
+### Colors
+- **Green (#10b981)**: Primary, success
+- **Orange (#f59e0b)**: Cash
+- **Blue (#3b82f6)**: Digital
 
-### Fuentes
-- Títulos: 24px, bold
-- Montos: 32px, bold
-- Texto normal: 14-16px
+### Fonts
+- Titles: 24px, bold
+- Amounts: 32px, bold
+- Normal text: 14-16px
 
 ---
 
-## 📱 Testing en Móvil
+## 📱 Mobile Testing
 
-### Opción 1: Ngrok (Recomendado)
+### Option 1: Ngrok (Recommended)
 
 ```bash
-# Instalar ngrok
+# Install ngrok
 npm install -g ngrok
 
-# Exponer puerto local
+# Expose local port
 ngrok http 3001
 
-# Usar URL https://xxx.ngrok.io en tu móvil
+# Use URL https://xxx.ngrok.io on your mobile device
 ```
 
-### Opción 2: IP Local
+### Option 2: Local IP
 
 ```bash
-# Iniciar con host
+# Start with host
 npm run dev -- --host
 
-# Abrir desde móvil
+# Open from mobile device
 # http://TU_IP_LOCAL:3001
 ```
 
-### Opción 3: Deploy a Vercel
+### Option 3: Deploy to Vercel
 
 ```bash
 npm install -g vercel
@@ -156,47 +155,47 @@ vercel
 
 ---
 
-## 🔧 Configuración Avanzada
+## 🔧 Advanced Configuration
 
-### Cambiar URL del Backend
+### Change Backend URL
 
-Editar `.env`:
+Edit `.env`:
 ```bash
 VITE_API_URL=https://tu-backend.com/api
 ```
 
-### Personalizar Colores
+### Customize Colors
 
-Editar `tailwind.config.js`:
+Edit `tailwind.config.js`:
 ```javascript
 theme: {
   extend: {
     colors: {
-      primary: '#tu-color',
+      primary: ‘#your-color’,
     },
   },
 }
 ```
 
-### Agregar Analytics
+### Add Analytics
 
-En `src/App.jsx`:
+In `src/App.jsx`:
 ```javascript
-import { analytics } from './services/analytics';
+import { analytics } from ‘./services/analytics’;
 
 useEffect(() => {
-  analytics.track('page_view');
+  analytics.track(‘page_view’);
 }, []);
 ```
 
 ---
 
-## 🚀 Deploy a Producción
+## 🚀 Deploy to Production
 
-### Vercel (Recomendado)
+### Vercel (Recommended)
 
 ```bash
-# Instalar Vercel CLI
+# Install Vercel CLI
 npm install -g vercel
 
 # Login
@@ -205,7 +204,7 @@ vercel login
 # Deploy
 vercel --prod
 
-# Configurar variables de entorno en Vercel dashboard
+# Configure environment variables in Vercel dashboard
 # VITE_API_URL = https://api.barrioledger.com/api
 ```
 
@@ -223,7 +222,7 @@ netlify deploy --prod --dir=dist
 ### Cloudflare Pages
 
 ```bash
-# Conectar repo en dashboard.cloudflare.com
+# Connect repo at dashboard.cloudflare.com
 # Build command: npm run build
 # Build output: dist
 ```
@@ -232,19 +231,19 @@ netlify deploy --prod --dir=dist
 
 ## 📊 PWA Features
 
-### Instalación
+### Installation
 
-Los usuarios pueden "Agregar a pantalla de inicio":
+Users can “Add to Home Screen”:
 
 **Android:**
-1. Abrir en Chrome
-2. Menú → Agregar a pantalla de inicio
-3. Ícono aparece en home
+1. Open in Chrome
+2. Menu → Add to Home Screen
+3. Icon appears on home screen
 
 **iOS:**
-1. Abrir en Safari
-2. Compartir → Agregar a inicio
-3. Ícono aparece en home
+1. Open in Safari
+2. Share → Add to Home Screen
+3. Icon appears on home screen
 
 ### Service Worker
 
@@ -256,37 +255,37 @@ workbox.routing.registerRoute(
 );
 ```
 
-### Offline Support (Próximamente)
+### Offline Support (Coming soon)
 
-- Cache de ventas en IndexedDB
-- Sync automático cuando vuelva internet
-- Badge de "pendiente" en ventas offline
+- Sales cache in IndexedDB
+- Automatic sync when internet connection is restored
+- “Pending” badge on offline sales
 
 ---
 
 ## 🧪 Testing
 
-### Test Manual
+### Manual Test
 
 ```bash
-# 1. Registrar comercio
+# 1. Register business
 curl -X POST http://localhost:3001/api/merchants \
-  -H "Content-Type: application/json" \
-  -d '{"phone":"+51999888777","businessName":"Test","location":"Lima"}'
+  -H “Content-Type: application/json” \
+  -d '{“phone”:“+51999888777”,“businessName”:“Test”,‘location’:“Lima”}'
 
-# 2. Usar apiKey en la app
+# 2. Use apiKey in the app
 
-# 3. Registrar 5 ventas
+# 3. Register 5 sales
 
-# 4. Verificar que aparezcan en historial
+# 4. Verify that they appear in history
 
-# 5. Verificar total del día
+# 5. Verify the day's total
 ```
 
 ### Performance
 
 ```bash
-# Lighthouse score objetivo
+# Target Lighthouse score
 - Performance: >90
 - Accessibility: >95
 - Best Practices: >90
@@ -298,46 +297,46 @@ curl -X POST http://localhost:3001/api/merchants \
 
 ## 🐛 Troubleshooting
 
-### "API key invalid"
-- Verifica que el backend esté corriendo
-- Verifica que la URL en `.env` sea correcta
-- Limpia localStorage y vuelve a registrar
+### “API key invalid”
+- Verify that the backend is running
+- Verify that the URL in `.env` is correct
+- Clear localStorage and re-register
 
-### "Venta no se registra"
-- Abre DevTools → Network
-- Verifica que POST a `/api/sales` devuelva 201
-- Verifica que el apiKey esté en headers
+### “Sale not registered”
+- Open DevTools → Network
+- Verify that POST to `/api/sales` returns 201
+- Verify that the apiKey is in headers
 
-### "No aparece en home screen"
-- Verifica que sea HTTPS (o localhost)
-- Verifica que manifest.json esté accesible
-- Verifica que los iconos existan
+### “Does not appear on home screen”
+- Verify that it is HTTPS (or localhost)
+- Verify that manifest.json is accessible
+- Verify that the icons exist
 
-### "Teclado no es numérico"
-- Verifica que el input tenga `type="number"`
-- Verifica que tenga `inputMode="decimal"`
+### “Keyboard is not numeric”
+- Verify that the input has `type=“number”`
+- Verify that it has `inputMode=“decimal”`
 
 ---
 
 ## 📈 Roadmap
 
-**v1.0 (Actual)**
-- ✅ Registro de comercio
-- ✅ Registro de ventas
-- ✅ Historial
-- ✅ PWA básica
+**v1.0 (Current)**
+- ✅ Trade registration
+- ✅ Sales registration
+- ✅ History
+- ✅ Basic PWA
 
-**v1.1 (Próximo mes)**
-- [ ] Offline support completo
-- [ ] Gráficos de ventas
-- [ ] Notificaciones push
-- [ ] Estadísticas semanales
+**v1.1 (Next month)**
+- [ ] Full offline support
+- [ ] Sales charts
+- [ ] Push notifications
+- [ ] Weekly statistics
 
-**v2.0 (Futuro)**
-- [ ] Múltiples usuarios
-- [ ] Inventario básico
-- [ ] Integración QR
-- [ ] Reportes PDF
+**v2.0 (Future)**
+- [ ] Multiple users
+- [ ] Basic inventory
+- [ ] QR integration
+- [ ] PDF reports
 
 ---
 
@@ -353,8 +352,7 @@ git push origin feature/nueva-funcionalidad
 
 ---
 
-## 📚 Recursos
-
+## 📚 Resources
 - [Vite Docs](https://vitejs.dev/)
 - [React Docs](https://react.dev/)
 - [Tailwind CSS](https://tailwindcss.com/)
@@ -363,4 +361,4 @@ git push origin feature/nueva-funcionalidad
 
 ---
 
-**¿Problemas?** Abre un issue en GitHub.
+**Problems?** Open an issue on GitHub.
