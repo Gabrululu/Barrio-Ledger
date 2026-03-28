@@ -1,0 +1,130 @@
+'use client';
+
+import { useState } from 'react';
+import { Banknote, Smartphone, Check, Plus } from 'lucide-react';
+import { registerSale } from '@/lib/merchant-api';
+
+interface SaleFormProps {
+  merchantId: string;
+  onSaleRegistered: (sale: Record<string, unknown>) => void;
+}
+
+export default function SaleForm({ merchantId, onSaleRegistered }: SaleFormProps) {
+  const [paymentMethod, setPaymentMethod] = useState('cash');
+  const [amount, setAmount] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!amount || parseFloat(amount) <= 0) {
+      alert('Ingresa un monto válido');
+      return;
+    }
+
+    setLoading(true);
+    setSuccess(false);
+
+    try {
+      const response = await registerSale({
+        amount: parseFloat(amount),
+        paymentMethod,
+        merchantId,
+      }) as Record<string, unknown>;
+
+      if (response.success || response.id) {
+        setSuccess(true);
+        const saleData = (response.sale as Record<string, unknown>) || response;
+        onSaleRegistered({
+          id: saleData.id,
+          amount: saleData.amount,
+          payment_method: paymentMethod,
+          created_at: (saleData.timestamp as string) || Math.floor(Date.now() / 1000).toString(),
+        });
+        setTimeout(() => { setAmount(''); setSuccess(false); }, 1500);
+      }
+    } catch (error) {
+      alert('Error al registrar venta: ' + (error as Error).message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+      <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
+        <Plus className="w-5 h-5 text-green-600" />
+        <span>Registrar Venta</span>
+      </h2>
+
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div>
+          <p className="text-sm font-semibold text-gray-700 mb-3">Método de Pago</p>
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              type="button"
+              onClick={() => setPaymentMethod('cash')}
+              className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center ${paymentMethod === 'cash' ? 'border-amber-500 bg-amber-50' : 'border-gray-200 bg-white'}`}
+            >
+              <Banknote className={`w-6 h-6 mb-2 ${paymentMethod === 'cash' ? 'text-amber-600' : 'text-gray-400'}`} />
+              <span className={`text-sm font-semibold ${paymentMethod === 'cash' ? 'text-amber-900' : 'text-gray-600'}`}>Efectivo</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setPaymentMethod('digital')}
+              className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center ${paymentMethod === 'digital' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white'}`}
+            >
+              <Smartphone className={`w-6 h-6 mb-2 ${paymentMethod === 'digital' ? 'text-blue-600' : 'text-gray-400'}`} />
+              <span className={`text-sm font-semibold ${paymentMethod === 'digital' ? 'text-blue-900' : 'text-gray-600'}`}>Digital</span>
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-3">Monto (S/)</label>
+          <input
+            type="number"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            placeholder="0.00"
+            step="0.01"
+            inputMode="decimal"
+            className="w-full px-4 py-3 text-2xl font-bold text-center bg-gray-50 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 outline-none transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            disabled={loading}
+          />
+        </div>
+
+        <div>
+          <p className="text-xs font-semibold text-gray-600 mb-2">Montos frecuentes</p>
+          <div className="grid grid-cols-4 gap-2">
+            {[10, 20, 50, 100].map(value => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setAmount(value.toString())}
+                className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 rounded-lg transition-colors"
+              >
+                {value}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          disabled={loading || !amount}
+          className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white font-bold py-4 rounded-xl transition-all flex items-center justify-center space-x-2 text-lg active:scale-95 disabled:opacity-50"
+        >
+          {success ? (
+            <><Check className="w-6 h-6" /><span>¡Venta Registrada!</span></>
+          ) : loading ? (
+            <><div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white" /><span>Registrando...</span></>
+          ) : (
+            <><Plus className="w-6 h-6" /><span>Registrar Venta</span></>
+          )}
+        </button>
+      </form>
+    </div>
+  );
+}

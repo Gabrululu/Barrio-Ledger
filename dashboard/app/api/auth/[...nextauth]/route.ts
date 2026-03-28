@@ -10,17 +10,28 @@ const handler = NextAuth({
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
-        // DATOS DEMO
-        if (credentials?.email === "admin@barrio.com" && credentials?.password === "mantle2025") {
-          return { id: "1", name: "Admin Barrio", email: "admin@barrio.com" };
+        const adminEmail = process.env.ADMIN_EMAIL;
+        const adminPassword = process.env.ADMIN_PASSWORD;
+
+        if (!adminEmail || !adminPassword) {
+          console.error("ADMIN_EMAIL o ADMIN_PASSWORD no configurados en variables de entorno");
+          return null;
+        }
+
+        if (credentials?.email === adminEmail && credentials?.password === adminPassword) {
+          return { id: "1", name: "Admin", email: adminEmail };
         }
         return null;
       }
     })
   ],
   pages: {
-    signIn: '/login', 
+    signIn: '/login',
   },
+  session: {
+    strategy: "jwt",
+  },
+  secret: process.env.NEXTAUTH_SECRET,
 });
 
 export { handler as GET, handler as POST };

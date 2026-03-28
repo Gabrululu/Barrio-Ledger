@@ -1,11 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { signIn } from 'next-auth/react';
 import { Store, Mail, Lock } from 'lucide-react';
 
 export default function LoginPage() {
-  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -17,13 +16,16 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      // TODO: Integrar con tu sistema de auth (Clerk, Auth0, etc)
-      // Por ahora, demo login
-      if (email === 'demo@fintech.com' && password === 'demo123') {
-        localStorage.setItem('auth_token', 'demo_token');
-        router.push('/dashboard');
-      } else {
+      const result = await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (result?.error) {
         setError('Credenciales inválidas');
+      } else {
+        window.location.href = '/dashboard';
       }
     } catch (err) {
       setError('Error al iniciar sesión');
@@ -102,12 +104,6 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Demo Credentials */}
-          <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-            <p className="text-sm text-blue-800 font-medium mb-1">Demo:</p>
-            <p className="text-xs text-blue-600">Email: demo@fintech.com</p>
-            <p className="text-xs text-blue-600">Password: demo123</p>
-          </div>
         </div>
       </div>
     </div>

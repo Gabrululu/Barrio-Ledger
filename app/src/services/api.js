@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import { getBlockchainProvider, verifyMerchantOnChain, getOnChainMerchant } from '../lib/blockchain';
 
-const API_URL = "https://barrio-ledger-dashboard.vercel.app/api";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
 
 function formatBytes32Id(id) {
     return ethers.zeroPadValue(id, 32);
