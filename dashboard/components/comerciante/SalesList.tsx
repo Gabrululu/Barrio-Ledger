@@ -1,6 +1,6 @@
 'use client';
 
-import { Banknote, Smartphone, Clock, CheckCircle2, Timer } from 'lucide-react';
+import { Banknote, Smartphone, Clock, CheckCircle2 } from 'lucide-react';
 
 interface Sale {
   id: string | number;
@@ -64,7 +64,6 @@ export default function SalesList({ sales, loading }: SalesListProps) {
     <div className="space-y-2">
       {sales.slice(0, 20).map((sale) => {
         const method = (sale.paymentMethod || sale.payment_method || 'cash').toLowerCase();
-        const isSynced = sale.id.toString().length > 5;
 
         return (
           <div
@@ -90,15 +89,9 @@ export default function SalesList({ sales, loading }: SalesListProps) {
 
             <div className="text-right">
               <p className="text-xs font-medium text-gray-500 mb-1">{formatTime(sale)}</p>
-              {isSynced ? (
-                <div className="flex items-center justify-end text-[10px] font-bold text-green-600">
-                  <CheckCircle2 className="w-3 h-3 mr-1" /><span>SYNC</span>
-                </div>
-              ) : (
-                <div className="flex items-center justify-end text-[10px] font-bold text-amber-500">
-                  <Timer className="w-3 h-3 mr-1" /><span>MANTLE PENDING</span>
-                </div>
-              )}
+              <div className="flex items-center justify-end text-[10px] font-bold text-green-600">
+                <CheckCircle2 className="w-3 h-3 mr-1" /><span>SYNC</span>
+              </div>
             </div>
           </div>
         );

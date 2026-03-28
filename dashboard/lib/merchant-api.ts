@@ -5,7 +5,8 @@ import { verifyMerchantOnChain } from './blockchain';
 const API_URL = '/api';
 
 function formatBytes32Id(id: string) {
-  return ethers.zeroPadValue(id, 32);
+  // ethers.id() produce un keccak256 → siempre bytes32 válido
+  return ethers.id(id);
 }
 
 async function apiRequest(endpoint: string, options: RequestInit = {}) {
