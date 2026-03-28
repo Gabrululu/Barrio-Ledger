@@ -1,7 +1,11 @@
 import { ethers } from 'ethers';
 import { verifyMerchantOnChain } from './blockchain';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+// En producción usamos el proxy interno de Next.js para evitar CORS.
+// En desarrollo apuntamos directo al backend local.
+const API_URL = process.env.NODE_ENV === 'production'
+  ? '/api/proxy'
+  : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api');
 
 function formatBytes32Id(id: string) {
   return ethers.zeroPadValue(id, 32);

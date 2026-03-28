@@ -20,17 +20,15 @@ const {
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// --- Middleware de Seguridad ---
-app.use(helmet()); // Protege encabezados HTTP
-
+// --- CORS (debe ir antes de helmet para que los headers no se sobreescriban) ---
 const allowedOrigins = [
   'https://barrio-ledger.vercel.app',
   'http://localhost:3000',
   'http://localhost:3001',
 ];
-app.use(cors({
+const corsOptions = {
   origin: (origin, callback) => {
-    // Permitir requests sin origin (mobile apps, curl, Postman, etc.)
+    // Permitir requests sin origin (mobile apps, curl, Postman, server-to-server)
     if (!origin) return callback(null, true);
     if (allowedOrigins.includes(origin)) return callback(null, true);
     callback(new Error(`CORS: origen no permitido — ${origin}`));
@@ -38,7 +36,14 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'X-API-Key', 'Authorization'],
   credentials: true,
-}));
+};
+
+// Responder a preflights OPTIONS en todas las rutas
+app.options('*', cors(corsOptions));
+app.use(cors(corsOptions));
+
+// --- Seguridad HTTP (después de CORS para no interferir con Access-Control-*) ---
+app.use(helmet({ crossOriginResourcePolicy: false }));
 
 app.use(express.json()); // Parseo de JSON en el body
 
