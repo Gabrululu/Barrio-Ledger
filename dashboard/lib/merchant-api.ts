@@ -1,11 +1,8 @@
 import { ethers } from 'ethers';
 import { verifyMerchantOnChain } from './blockchain';
 
-// En producción usamos el proxy interno de Next.js para evitar CORS.
-// En desarrollo apuntamos directo al backend local.
-const API_URL = process.env.NODE_ENV === 'production'
-  ? '/api/proxy'
-  : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api');
+// Las rutas /api/* de Next.js están en el mismo origen — sin CORS, sin Railway.
+const API_URL = '/api';
 
 function formatBytes32Id(id: string) {
   return ethers.zeroPadValue(id, 32);

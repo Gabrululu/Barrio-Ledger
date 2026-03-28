@@ -1,15 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  async rewrites() {
-    const backendUrl = process.env.BACKEND_API_URL || 'https://barrio-ledger-backend.up.railway.app';
-    return [
-      {
-        source: '/api/proxy/:path*',
-        destination: `${backendUrl}/api/:path*`,
-      },
-    ];
-  },
-
   async headers() {
     return [
       {
