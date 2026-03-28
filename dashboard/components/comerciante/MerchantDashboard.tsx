@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Store, LogOut, TrendingUp, Activity, ExternalLink, Globe, Link, ShieldCheck } from 'lucide-react';
+import NextLink from 'next/link';
+import { Store, LogOut, TrendingUp, Activity, ExternalLink, Globe, Link, ShieldCheck, ChevronLeft } from 'lucide-react';
 import SaleForm from './SaleForm';
 import SalesList from './SalesList';
 import { getSales, getOnChainScore } from '@/lib/merchant-api';
@@ -103,9 +104,14 @@ export default function MerchantDashboard({ merchant, onLogout }: MerchantDashbo
               </p>
             </div>
           </div>
-          <button onClick={onLogout} className="p-2 text-slate-300 hover:text-red-500 transition-colors">
-            <LogOut className="w-5 h-5" />
-          </button>
+          <div className="flex items-center space-x-1">
+            <NextLink href="/" className="p-2 text-slate-300 hover:text-slate-500 transition-colors" title="Volver al inicio">
+              <ChevronLeft className="w-5 h-5" />
+            </NextLink>
+            <button onClick={onLogout} className="p-2 text-slate-300 hover:text-red-500 transition-colors" title="Cerrar sesión">
+              <LogOut className="w-5 h-5" />
+            </button>
+          </div>
         </div>
       </header>
 

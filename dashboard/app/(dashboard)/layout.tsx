@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
 import Link from 'next/link';
-import { LayoutDashboard, Store, Map, TrendingUp, Key, LogOut, Menu, X } from 'lucide-react';
+import { LayoutDashboard, Store, Map, TrendingUp, Key, LogOut, Menu, X, ChevronLeft } from 'lucide-react';
 
 const navigation = [
   { name: 'Overview', href: '/dashboard', icon: LayoutDashboard },
@@ -90,6 +90,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               );
             })}
           </nav>
+
+          {/* Back to landing */}
+          <div className="px-4 pb-2">
+            <Link
+              href="/"
+              className="flex items-center space-x-2 px-4 py-2.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-50 transition-colors text-sm"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              <span className="font-medium">Volver al inicio</span>
+            </Link>
+          </div>
 
           {/* User & Logout */}
           <div className="p-4 border-t border-gray-200">

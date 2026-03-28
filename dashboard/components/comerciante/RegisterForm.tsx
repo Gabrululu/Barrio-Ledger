@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Store, MapPin, Phone, ArrowRight, ShieldCheck } from 'lucide-react';
+import Link from 'next/link';
+import { Store, MapPin, Phone, ArrowRight, ShieldCheck, ChevronLeft } from 'lucide-react';
 import { registerMerchant } from '@/lib/merchant-api';
 import { MerchantData } from '@/lib/merchant-storage';
 
@@ -46,6 +47,10 @@ export default function RegisterForm({ onRegister }: RegisterFormProps) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
+        <Link href="/" className="inline-flex items-center text-sm text-gray-500 hover:text-gray-800 transition-colors mb-6">
+          <ChevronLeft className="w-4 h-4 mr-1" />
+          Volver al inicio
+        </Link>
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-green-400 to-green-600 rounded-2xl mb-4 shadow-lg">
             <Store className="w-10 h-10 text-white" />
