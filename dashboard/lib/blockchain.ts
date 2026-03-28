@@ -26,8 +26,18 @@ export async function verifyMerchantOnChain(merchantId: string) {
       // Solo verificado si hay al menos un bucket publicado on-chain
       isVerified: txCount > 0,
     }
-  } catch (error) {
-    console.error("Error verificando on-chain:", error)
+  } catch (error: unknown) {
+    // CALL_EXCEPTION con require(false) = comerciante aún no tiene buckets on-chain
+    // Es comportamiento esperado para comerciantes nuevos, no un error real
+    const isNotYetOnChain =
+      error instanceof Error &&
+      (error.message.includes('CALL_EXCEPTION') ||
+       error.message.includes('require(false)') ||
+       (error as { code?: string }).code === 'CALL_EXCEPTION')
+
+    if (!isNotYetOnChain) {
+      console.warn("Error inesperado verificando on-chain:", error)
+    }
     return { isVerified: false, totalOnChain: '0', txCount: '0' }
   }
 }
