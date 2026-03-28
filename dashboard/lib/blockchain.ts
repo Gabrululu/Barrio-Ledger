@@ -16,16 +16,18 @@ export const getBlockchainProvider = () => {
 export async function verifyMerchantOnChain(merchantId: string) {
   const provider = getBlockchainProvider()
   const contract = new ethers.Contract(SALES_LOG_ADDRESS, ABI, provider)
-  
+
   try {
     const stats = await contract.getSalesStats(merchantId)
+    const txCount = Number(stats.txCount)
     return {
-      totalOnChain: ethers.formatUnits(stats.totalAmount, 18), // Ajustar decimales según contrato
-      txCount: stats.txCount.toString(),
-      isVerified: true
+      totalOnChain: ethers.formatUnits(stats.totalAmount, 18),
+      txCount: txCount.toString(),
+      // Solo verificado si hay al menos un bucket publicado on-chain
+      isVerified: txCount > 0,
     }
   } catch (error) {
     console.error("Error verificando on-chain:", error)
-    return { isVerified: false }
+    return { isVerified: false, totalOnChain: '0', txCount: '0' }
   }
 }

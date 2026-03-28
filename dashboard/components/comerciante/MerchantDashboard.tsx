@@ -176,8 +176,11 @@ export default function MerchantDashboard({ merchant, onLogout }: MerchantDashbo
           <div className="flex items-center space-x-3">
             <div className={`h-3 w-3 rounded-full ${onChainData.verified ? 'bg-emerald-500 shadow-lg shadow-emerald-500/50' : 'bg-amber-500 animate-pulse'}`} />
             <div>
-              <p className="text-[10px] font-black text-slate-900 uppercase leading-none mb-1 tracking-tight">Status de Red</p>
-              <p className="text-[9px] font-bold text-slate-400 uppercase">{onChainData.verified ? 'Mantle Verified' : 'Railway Syncing...'}</p>
+              <p className="text-[10px] font-black text-slate-900 uppercase leading-none mb-1 tracking-tight">Mantle Sepolia</p>
+              {onChainData.verified
+                ? <p className="text-[9px] font-bold text-emerald-500 uppercase">{onChainData.txCount} bucket{Number(onChainData.txCount) !== 1 ? 's' : ''} on-chain ✓</p>
+                : <p className="text-[9px] font-bold text-amber-400 uppercase">Pendiente de anclaje</p>
+              }
             </div>
           </div>
           <a
