@@ -22,7 +22,24 @@ const PORT = process.env.PORT || 3000;
 
 // --- Middleware de Seguridad ---
 app.use(helmet()); // Protege encabezados HTTP
-app.use(cors());   // Habilita Cross-Origin Resource Sharing
+
+const allowedOrigins = [
+  'https://barrio-ledger.vercel.app',
+  'http://localhost:3000',
+  'http://localhost:3001',
+];
+app.use(cors({
+  origin: (origin, callback) => {
+    // Permitir requests sin origin (mobile apps, curl, Postman, etc.)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    callback(new Error(`CORS: origen no permitido — ${origin}`));
+  },
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'X-API-Key', 'Authorization'],
+  credentials: true,
+}));
+
 app.use(express.json()); // Parseo de JSON en el body
 
 // --- Rate Limiting (Protección contra abusos) ---
