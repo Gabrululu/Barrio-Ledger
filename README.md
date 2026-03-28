@@ -260,7 +260,7 @@ MANTLE_RPC_URL
 
 | Component | URL |
 |-----------|-----|
-| **Frontend (Landing + App + Dashboard)** | https://barrio-ledger-dashboard.vercel.app |
+| **Frontend (Landing + App + Dashboard)** | https://barrio-ledger.vercel.app |
 | **Backend API** | https://barrio-ledger-backend.up.railway.app |
 | **Blockchain Explorer** | https://sepolia.mantlescan.xyz |
 
