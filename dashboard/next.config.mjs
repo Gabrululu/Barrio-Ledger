@@ -1,19 +1,28 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  async rewrites() {
+    const backendUrl = process.env.BACKEND_API_URL || 'https://barrio-ledger-backend.up.railway.app';
+    return [
+      {
+        source: '/api/proxy/:path*',
+        destination: `${backendUrl}/api/:path*`,
+      },
+    ];
+  },
+
   async headers() {
     return [
       {
-        // CORS para consumidores externos de la API (fintechs, integraciones)
-        source: "/api/:path*",
+        source: '/api/:path*',
         headers: [
-          { key: "Access-Control-Allow-Credentials", value: "true" },
-          { key: "Access-Control-Allow-Origin", value: "*" },
-          { key: "Access-Control-Allow-Methods", value: "GET,DELETE,PATCH,POST,PUT,OPTIONS" },
-          { key: "Access-Control-Allow-Headers", value: "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, X-API-Key" },
-        ]
-      }
-    ]
-  }
+          { key: 'Access-Control-Allow-Credentials', value: 'true' },
+          { key: 'Access-Control-Allow-Origin', value: '*' },
+          { key: 'Access-Control-Allow-Methods', value: 'GET,DELETE,PATCH,POST,PUT,OPTIONS' },
+          { key: 'Access-Control-Allow-Headers', value: 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, X-API-Key' },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;
